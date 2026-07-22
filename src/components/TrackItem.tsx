@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Play,
-  Pause,
   Heart,
   MoreVertical,
   Music2,
   Trash2,
   ListPlus,
   Radio,
-  Sparkles,
 } from 'lucide-react';
 import { AudioTrack } from '../types';
 
@@ -41,12 +40,14 @@ export const TrackItem: React.FC<TrackItemProps> = ({
   };
 
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -1, scale: 1.005 }}
+      whileTap={{ scale: 0.99 }}
       onClick={() => onPlayTrack(track)}
-      className={`group relative flex items-center justify-between p-2.5 rounded-2xl border transition-all cursor-pointer ${
+      className={`group relative flex items-center justify-between p-2.5 rounded-2xl border transition-colors cursor-pointer select-none ${
         isCurrent
-          ? 'bg-neutral-900 border-[#c6ff34] shadow-md shadow-[#c6ff34]/10'
-          : 'bg-neutral-900/50 border-neutral-800/80 hover:bg-neutral-800/60 hover:border-neutral-700'
+          ? 'bg-neutral-900 border-[#c6ff34] shadow-md shadow-[#c6ff34]/15'
+          : 'bg-neutral-900/50 border-neutral-800/80 hover:bg-neutral-800/70 hover:border-neutral-700'
       }`}
     >
       {/* Left Cover & Track Info */}
@@ -66,12 +67,24 @@ export const TrackItem: React.FC<TrackItemProps> = ({
 
           {/* Playing Overlay Indicator */}
           {isCurrent && (
-            <div className="absolute inset-0 bg-[#171717]/70 backdrop-blur-xs flex items-center justify-center text-[#c6ff34]">
+            <div className="absolute inset-0 bg-[#171717]/75 backdrop-blur-xs flex items-center justify-center text-[#c6ff34]">
               {isPlaying ? (
                 <div className="flex items-end gap-0.5 h-4">
-                  <span className="w-1 bg-[#c6ff34] animate-bounce h-2" />
-                  <span className="w-1 bg-[#c6ff34] animate-bounce h-4 delay-100" />
-                  <span className="w-1 bg-[#c6ff34] animate-bounce h-3 delay-200" />
+                  <motion.span
+                    animate={{ height: ['20%', '100%', '30%', '90%', '20%'] }}
+                    transition={{ repeat: Infinity, duration: 0.8, ease: 'easeInOut' }}
+                    className="w-1 bg-[#c6ff34] rounded-full"
+                  />
+                  <motion.span
+                    animate={{ height: ['60%', '20%', '100%', '40%', '60%'] }}
+                    transition={{ repeat: Infinity, duration: 0.7, ease: 'easeInOut' }}
+                    className="w-1 bg-[#c6ff34] rounded-full"
+                  />
+                  <motion.span
+                    animate={{ height: ['100%', '40%', '70%', '20%', '100%'] }}
+                    transition={{ repeat: Infinity, duration: 0.9, ease: 'easeInOut' }}
+                    className="w-1 bg-[#c6ff34] rounded-full"
+                  />
                 </div>
               ) : (
                 <Play className="w-5 h-5 fill-current ml-0.5" />
@@ -119,7 +132,9 @@ export const TrackItem: React.FC<TrackItemProps> = ({
         </span>
 
         {/* Favorite Heart */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.2 }}
+          whileTap={{ scale: 0.8 }}
           onClick={(e) => {
             e.stopPropagation();
             onToggleFavorite(track.id);
@@ -133,44 +148,54 @@ export const TrackItem: React.FC<TrackItemProps> = ({
                 : 'text-neutral-500 group-hover:text-neutral-300'
             }`}
           />
-        </button>
+        </motion.button>
 
         {/* Options Dropdown Menu */}
         <div className="relative" onClick={(e) => e.stopPropagation()}>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => setShowMenu(!showMenu)}
             className="p-1.5 text-neutral-400 hover:text-white rounded-lg transition-colors cursor-pointer"
           >
             <MoreVertical className="w-4 h-4" />
-          </button>
+          </motion.button>
 
-          {showMenu && (
-            <div className="absolute right-0 top-8 w-44 bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl p-1 z-30 space-y-1">
-              <button
-                onClick={() => {
-                  onAddToPlaylist(track);
-                  setShowMenu(false);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-200 hover:bg-neutral-800 hover:text-[#c6ff34] rounded-lg transition-colors cursor-pointer"
+          <AnimatePresence>
+            {showMenu && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 5 }}
+                className="absolute right-0 top-8 w-44 bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl p-1 z-30 space-y-1"
               >
-                <ListPlus className="w-4 h-4" /> Ajouter à playlist
-              </button>
-
-              {onDeleteTrack && track.source === 'local' && (
                 <button
                   onClick={() => {
-                    onDeleteTrack(track.id);
+                    onAddToPlaylist(track);
                     setShowMenu(false);
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-400 hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-200 hover:bg-neutral-800 hover:text-[#c6ff34] rounded-lg transition-colors cursor-pointer"
                 >
-                  <Trash2 className="w-4 h-4" /> Supprimer la piste
+                  <ListPlus className="w-4 h-4" /> Ajouter à playlist
                 </button>
-              )}
-            </div>
-          )}
+
+                {onDeleteTrack && track.source === 'local' && (
+                  <button
+                    onClick={() => {
+                      onDeleteTrack(track.id);
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-400 hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" /> Supprimer la piste
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
+

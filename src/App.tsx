@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   AudioTrack,
   Playlist,
@@ -513,70 +514,80 @@ export default function App() {
         />
 
         {/* Main Body View */}
-        <main className="p-4">
-          {activeTab === 'library' && (
-            <LibraryView
-              tracks={tracks}
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onPlayTrack={handlePlayTrack}
-              onToggleFavorite={handleToggleFavorite}
-              onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
-              onDeleteTrack={handleDeleteTrack}
-              onScanFolder={() => setIsScanModalOpen(true)}
-              onImportFiles={handleImportFiles}
-            />
-          )}
+        <main className="p-4 min-h-[60vh] relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+            >
+              {activeTab === 'library' && (
+                <LibraryView
+                  tracks={tracks}
+                  currentTrack={currentTrack}
+                  isPlaying={isPlaying}
+                  onPlayTrack={handlePlayTrack}
+                  onToggleFavorite={handleToggleFavorite}
+                  onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
+                  onDeleteTrack={handleDeleteTrack}
+                  onScanFolder={() => setIsScanModalOpen(true)}
+                  onImportFiles={handleImportFiles}
+                />
+              )}
 
-          {activeTab === 'playlists' && (
-            <PlaylistsView
-              playlists={playlists}
-              tracks={tracks}
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onCreatePlaylist={handleCreatePlaylist}
-              onDeletePlaylist={handleDeletePlaylist}
-              onRemoveTrackFromPlaylist={handleRemoveTrackFromPlaylist}
-              onReorderPlaylistTrack={handleReorderPlaylistTrack}
-              onPlayPlaylist={handlePlayPlaylist}
-              onPlayTrack={handlePlayTrack}
-              onToggleFavorite={handleToggleFavorite}
-              onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
-            />
-          )}
+              {activeTab === 'playlists' && (
+                <PlaylistsView
+                  playlists={playlists}
+                  tracks={tracks}
+                  currentTrack={currentTrack}
+                  isPlaying={isPlaying}
+                  onCreatePlaylist={handleCreatePlaylist}
+                  onDeletePlaylist={handleDeletePlaylist}
+                  onRemoveTrackFromPlaylist={handleRemoveTrackFromPlaylist}
+                  onReorderPlaylistTrack={handleReorderPlaylistTrack}
+                  onPlayPlaylist={handlePlayPlaylist}
+                  onPlayTrack={handlePlayTrack}
+                  onToggleFavorite={handleToggleFavorite}
+                  onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
+                />
+              )}
 
-          {activeTab === 'streams' && (
-            <StreamsView
-              radioStations={radioStations}
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onPlayStream={handlePlayStream}
-              onAddCustomStream={handleAddCustomStream}
-            />
-          )}
+              {activeTab === 'streams' && (
+                <StreamsView
+                  radioStations={radioStations}
+                  currentTrack={currentTrack}
+                  isPlaying={isPlaying}
+                  onPlayStream={handlePlayStream}
+                  onAddCustomStream={handleAddCustomStream}
+                />
+              )}
 
-          {activeTab === 'equalizer' && (
-            <EqualizerView
-              equalizerGains={equalizerGains}
-              onChangeGains={handleChangeEQGains}
-              equalizerPresets={EQUALIZER_PRESETS}
-              activePresetName={activePresetName}
-              onSelectPreset={handleSelectEQPreset}
-              getAnalyserData={() => audioEngineRef.current?.getAnalyserData() || null}
-              isPlaying={isPlaying}
-            />
-          )}
+              {activeTab === 'equalizer' && (
+                <EqualizerView
+                  equalizerGains={equalizerGains}
+                  onChangeGains={handleChangeEQGains}
+                  equalizerPresets={EQUALIZER_PRESETS}
+                  activePresetName={activePresetName}
+                  onSelectPreset={handleSelectEQPreset}
+                  getAnalyserData={() => audioEngineRef.current?.getAnalyserData() || null}
+                  isPlaying={isPlaying}
+                />
+              )}
 
-          {activeTab === 'settings' && (
-            <SettingsView
-              tracks={tracks}
-              isDarkMode={isDarkMode}
-              onToggleTheme={() => setIsDarkMode(!isDarkMode)}
-              onScanFolder={() => setIsScanModalOpen(true)}
-              onReloadSamples={handleReloadSamples}
-              onClearLocalTracks={handleClearLocalTracks}
-            />
-          )}
+              {activeTab === 'settings' && (
+                <SettingsView
+                  tracks={tracks}
+                  isDarkMode={isDarkMode}
+                  onToggleTheme={() => setIsDarkMode(!isDarkMode)}
+                  onScanFolder={() => setIsScanModalOpen(true)}
+                  onReloadSamples={handleReloadSamples}
+                  onClearLocalTracks={handleClearLocalTracks}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* Mini Player Sticky Bar */}
@@ -644,54 +655,72 @@ export default function App() {
         />
 
         {/* Add Track to Playlist Picker Modal */}
-        {trackToAddToPlaylist && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <ListPlus className="w-4 h-4 text-[#c6ff34]" /> Ajouter à une Playlist
-                </h3>
-                <button
-                  onClick={() => setTrackToAddToPlaylist(null)}
-                  className="text-neutral-400 hover:text-white cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+        <AnimatePresence>
+          {trackToAddToPlaylist && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setTrackToAddToPlaylist(null)}
+                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              />
 
-              <div className="text-xs font-semibold text-neutral-300">
-                Piste: <strong className="text-[#c6ff34]">{trackToAddToPlaylist.title}</strong>
-              </div>
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 15 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 15 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-2xl z-10"
+              >
+                <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <ListPlus className="w-4 h-4 text-[#c6ff34]" /> Ajouter à une Playlist
+                  </h3>
+                  <button
+                    onClick={() => setTrackToAddToPlaylist(null)}
+                    className="text-neutral-400 hover:text-white cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
 
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {playlists.map((playlist) => {
-                  const alreadyIn = playlist.trackIds.includes(trackToAddToPlaylist.id);
-                  return (
-                    <button
-                      key={playlist.id}
-                      onClick={() =>
-                        handleAddTrackToPlaylistById(
-                          playlist.id,
-                          trackToAddToPlaylist.id
-                        )
-                      }
-                      className="w-full flex items-center justify-between p-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-bold text-white transition-colors cursor-pointer"
-                    >
-                      <span>{playlist.name}</span>
-                      {alreadyIn ? (
-                        <span className="text-[10px] text-[#c6ff34] flex items-center gap-1">
-                          <Check className="w-3.5 h-3.5" /> Déjà présente
-                        </span>
-                      ) : (
-                        <Plus className="w-4 h-4 text-[#c6ff34]" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+                <div className="text-xs font-semibold text-neutral-300">
+                  Piste: <strong className="text-[#c6ff34]">{trackToAddToPlaylist.title}</strong>
+                </div>
+
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {playlists.map((playlist) => {
+                    const alreadyIn = playlist.trackIds.includes(trackToAddToPlaylist.id);
+                    return (
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        key={playlist.id}
+                        onClick={() =>
+                          handleAddTrackToPlaylistById(
+                            playlist.id,
+                            trackToAddToPlaylist.id
+                          )
+                        }
+                        className="w-full flex items-center justify-between p-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-bold text-white transition-colors cursor-pointer"
+                      >
+                        <span>{playlist.name}</span>
+                        {alreadyIn ? (
+                          <span className="text-[10px] text-[#c6ff34] flex items-center gap-1">
+                            <Check className="w-3.5 h-3.5" /> Déjà présente
+                          </span>
+                        ) : (
+                          <Plus className="w-4 h-4 text-[#c6ff34]" />
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </motion.div>
             </div>
-          </div>
-        )}
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
