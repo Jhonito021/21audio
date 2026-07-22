@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Search,
   FolderOpen,
@@ -7,15 +8,18 @@ import {
   Music,
   Disc,
   Sparkles,
-  SlidersHorizontal,
-  ArrowUpDown,
-  Filter,
+  History,
+  Play,
+  Trash2,
+  Music2,
+  Clock,
 } from 'lucide-react';
 import { AudioTrack } from '../types';
 import { TrackItem } from './TrackItem';
 
 interface LibraryViewProps {
   tracks: AudioTrack[];
+  recentlyPlayed?: AudioTrack[];
   currentTrack: AudioTrack | null;
   isPlaying: boolean;
   onPlayTrack: (track: AudioTrack) => void;
@@ -24,10 +28,12 @@ interface LibraryViewProps {
   onDeleteTrack: (trackId: string) => void;
   onScanFolder: () => void;
   onImportFiles: (files: FileList | File[]) => void;
+  onClearRecentlyPlayed?: () => void;
 }
 
 export const LibraryView: React.FC<LibraryViewProps> = ({
   tracks,
+  recentlyPlayed = [],
   currentTrack,
   isPlaying,
   onPlayTrack,
@@ -36,6 +42,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onDeleteTrack,
   onScanFolder,
   onImportFiles,
+  onClearRecentlyPlayed,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<
@@ -165,6 +172,126 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Recently Played Section */}
+      {recentlyPlayed && recentlyPlayed.length > 0 && (
+        <div className="bg-neutral-900/80 border border-neutral-800/90 rounded-2xl p-4 shadow-xl space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-xl bg-[#c6ff34]/15 text-[#c6ff34] border border-[#c6ff34]/20">
+                <History className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
+                  Récemment Écoutés
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-800 text-[#c6ff34] border border-neutral-700">
+                    {recentlyPlayed.length} / 5
+                  </span>
+                </h3>
+                <p className="text-[11px] text-neutral-400">Accès rapide à vos 5 dernières écoutes</p>
+              </div>
+            </div>
+
+            {onClearRecentlyPlayed && (
+              <button
+                onClick={onClearRecentlyPlayed}
+                className="text-neutral-500 hover:text-neutral-300 text-[11px] font-semibold flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-neutral-800 cursor-pointer"
+                title="Effacer l'historique"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Effacer</span>
+              </button>
+            )}
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 pt-1">
+            {recentlyPlayed.slice(0, 5).map((track) => {
+              const isCurrent = currentTrack?.id === track.id;
+              const isThisPlaying = isCurrent && isPlaying;
+
+              return (
+                <motion.div
+                  key={`recent-${track.id}`}
+                  whileHover={{ y: -2, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => onPlayTrack(track)}
+                  className={`group relative p-2.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    isCurrent
+                      ? 'bg-neutral-800/90 border-[#c6ff34] shadow-lg shadow-[#c6ff34]/10'
+                      : 'bg-neutral-950/60 border-neutral-800/80 hover:bg-neutral-800/70 hover:border-neutral-700'
+                  }`}
+                >
+                  {/* Cover image with play overlay */}
+                  <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-900 mb-2 border border-neutral-800 group-hover:border-neutral-700">
+                    {track.coverUrl ? (
+                      <img
+                        src={track.coverUrl}
+                        alt={track.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-neutral-600 bg-neutral-900">
+                        <Music2 className="w-6 h-6" />
+                      </div>
+                    )}
+
+                    {/* Format Badge */}
+                    <div className="absolute top-1 left-1 bg-black/70 backdrop-blur-xs px-1.5 py-0.5 rounded text-[9px] font-mono font-bold text-neutral-300 border border-white/10">
+                      {track.format}
+                    </div>
+
+                    {/* Hover / Playing Overlay */}
+                    <div
+                      className={`absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center transition-opacity duration-200 ${
+                        isCurrent ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      }`}
+                    >
+                      {isThisPlaying ? (
+                        <div className="p-2 bg-[#c6ff34] text-[#171717] rounded-full shadow-lg">
+                          <div className="flex items-end gap-0.5 h-3.5 w-3.5 justify-center">
+                            <motion.span
+                              animate={{ height: ['20%', '100%', '30%', '90%'] }}
+                              transition={{ repeat: Infinity, duration: 0.6 }}
+                              className="w-0.5 bg-[#171717] rounded-full"
+                            />
+                            <motion.span
+                              animate={{ height: ['80%', '20%', '100%', '40%'] }}
+                              transition={{ repeat: Infinity, duration: 0.5 }}
+                              className="w-0.5 bg-[#171717] rounded-full"
+                            />
+                            <motion.span
+                              animate={{ height: ['100%', '40%', '70%', '20%'] }}
+                              transition={{ repeat: Infinity, duration: 0.7 }}
+                              className="w-0.5 bg-[#171717] rounded-full"
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-2 bg-[#c6ff34] text-[#171717] rounded-full shadow-lg transform transition-transform group-hover:scale-110">
+                          <Play className="w-4 h-4 fill-current ml-0.5" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Track metadata */}
+                  <div className="space-y-0.5 min-w-0">
+                    <h4
+                      className={`text-xs font-bold truncate ${
+                        isCurrent ? 'text-[#c6ff34]' : 'text-white group-hover:text-[#c6ff34]'
+                      } transition-colors`}
+                    >
+                      {track.title}
+                    </h4>
+                    <p className="text-[11px] text-neutral-400 truncate">{track.artist}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Search Bar & Sort Dropdown */}
       <div className="flex items-center gap-2">

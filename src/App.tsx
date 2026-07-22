@@ -3,12 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   AudioTrack,
   Playlist,
-  RadioStation,
   RepeatMode,
   TabType,
   EqualizerPreset,
 } from './types';
-import { SAMPLE_TRACKS, SAMPLE_RADIO_STATIONS, EQUALIZER_PRESETS } from './lib/sampleTracks';
+import { SAMPLE_TRACKS, EQUALIZER_PRESETS } from './lib/sampleTracks';
 import { parseAudioFile } from './lib/metadataParser';
 import { AudioEngine } from './lib/audioEngine';
 import {
@@ -27,7 +26,6 @@ import { MiniPlayer } from './components/MiniPlayer';
 import { FullPlayerModal } from './components/FullPlayerModal';
 import { LibraryView } from './components/LibraryView';
 import { PlaylistsView } from './components/PlaylistsView';
-import { StreamsView } from './components/StreamsView';
 import { EqualizerView } from './components/EqualizerView';
 import { SettingsView } from './components/SettingsView';
 import { ScanModal } from './components/ScanModal';
@@ -38,7 +36,14 @@ export default function App() {
   // App state
   const [tracks, setTracks] = useState<AudioTrack[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [radioStations, setRadioStations] = useState<RadioStation[]>(SAMPLE_RADIO_STATIONS);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<AudioTrack[]>(() => {
+    try {
+      const saved = localStorage.getItem('21audio_recently_played_tracks');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   
   const [activeTab, setActiveTab] = useState<TabType>('library');
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -158,6 +163,19 @@ export default function App() {
     loadInitialData();
   }, []);
 
+  // Sync recentlyPlayed with updated tracks list (to keep valid blob URLs for local files)
+  useEffect(() => {
+    if (tracks.length > 0) {
+      setRecentlyPlayed((prev) => {
+        if (prev.length === 0) return prev;
+        return prev.map((rp) => {
+          const found = tracks.find((t) => t.id === rp.id);
+          return found || rp;
+        });
+      });
+    }
+  }, [tracks]);
+
   // Handle Play/Pause
   const handleTogglePlay = () => {
     if (!audioEngineRef.current) return;
@@ -181,9 +199,30 @@ export default function App() {
 
   const handlePlayTrack = (track: AudioTrack) => {
     setCurrentTrack(track);
+
+    // Track recently played (last 5)
+    setRecentlyPlayed((prev) => {
+      const filtered = prev.filter((t) => t.id !== track.id);
+      const updated = [track, ...filtered].slice(0, 5);
+      try {
+        const serializable = updated.map((t) => ({ ...t, blob: undefined }));
+        localStorage.setItem('21audio_recently_played_tracks', JSON.stringify(serializable));
+      } catch (e) {
+        console.warn('Failed to save recently played tracks:', e);
+      }
+      return updated;
+    });
+
     if (audioEngineRef.current) {
       audioEngineRef.current.loadAndPlay(track);
     }
+  };
+
+  const handleClearRecentlyPlayed = () => {
+    setRecentlyPlayed([]);
+    try {
+      localStorage.removeItem('21audio_recently_played_tracks');
+    } catch {}
   };
 
   const handleSeek = (secs: number) => {
@@ -286,6 +325,7 @@ export default function App() {
   const handleDeleteTrack = async (trackId: string) => {
     const filtered = tracks.filter((t) => t.id !== trackId);
     setTracks(filtered);
+    setRecentlyPlayed((prev) => prev.filter((t) => t.id !== trackId));
     await deleteTrackFromDB(trackId).catch(console.warn);
 
     if (currentTrack?.id === trackId) {
@@ -371,30 +411,6 @@ export default function App() {
     if (playlistTracks.length > 0) {
       handlePlayTrack(playlistTracks[0]);
     }
-  };
-
-  // Radio Streams
-  const handlePlayStream = (station: RadioStation) => {
-    const streamTrack: AudioTrack = {
-      id: station.id,
-      title: station.name,
-      artist: `${station.genre} • ${station.country}`,
-      album: 'Radio Direct Web',
-      duration: 0,
-      coverUrl: station.logoUrl,
-      src: station.streamUrl,
-      source: 'stream',
-      format: 'STREAM',
-      bitrate: station.bitrate,
-      addedAt: Date.now(),
-    };
-
-    handlePlayTrack(streamTrack);
-  };
-
-  const handleAddCustomStream = (station: RadioStation) => {
-    setRadioStations((prev) => [station, ...prev]);
-    handlePlayStream(station);
   };
 
   // Local File Scanner & Importer
@@ -515,79 +531,61 @@ export default function App() {
 
         {/* Main Body View */}
         <main className="p-4 min-h-[60vh] relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
-            >
-              {activeTab === 'library' && (
-                <LibraryView
-                  tracks={tracks}
-                  currentTrack={currentTrack}
-                  isPlaying={isPlaying}
-                  onPlayTrack={handlePlayTrack}
-                  onToggleFavorite={handleToggleFavorite}
-                  onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
-                  onDeleteTrack={handleDeleteTrack}
-                  onScanFolder={() => setIsScanModalOpen(true)}
-                  onImportFiles={handleImportFiles}
-                />
-              )}
+          {activeTab === 'library' && (
+            <LibraryView
+              tracks={tracks}
+              recentlyPlayed={recentlyPlayed}
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              onPlayTrack={handlePlayTrack}
+              onToggleFavorite={handleToggleFavorite}
+              onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
+              onDeleteTrack={handleDeleteTrack}
+              onScanFolder={() => setIsScanModalOpen(true)}
+              onImportFiles={handleImportFiles}
+              onClearRecentlyPlayed={handleClearRecentlyPlayed}
+            />
+          )}
 
-              {activeTab === 'playlists' && (
-                <PlaylistsView
-                  playlists={playlists}
-                  tracks={tracks}
-                  currentTrack={currentTrack}
-                  isPlaying={isPlaying}
-                  onCreatePlaylist={handleCreatePlaylist}
-                  onDeletePlaylist={handleDeletePlaylist}
-                  onRemoveTrackFromPlaylist={handleRemoveTrackFromPlaylist}
-                  onReorderPlaylistTrack={handleReorderPlaylistTrack}
-                  onPlayPlaylist={handlePlayPlaylist}
-                  onPlayTrack={handlePlayTrack}
-                  onToggleFavorite={handleToggleFavorite}
-                  onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
-                />
-              )}
+          {activeTab === 'playlists' && (
+            <PlaylistsView
+              playlists={playlists}
+              tracks={tracks}
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              onCreatePlaylist={handleCreatePlaylist}
+              onDeletePlaylist={handleDeletePlaylist}
+              onRemoveTrackFromPlaylist={handleRemoveTrackFromPlaylist}
+              onReorderPlaylistTrack={handleReorderPlaylistTrack}
+              onPlayPlaylist={handlePlayPlaylist}
+              onPlayTrack={handlePlayTrack}
+              onToggleFavorite={handleToggleFavorite}
+              onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
+            />
+          )}
 
-              {activeTab === 'streams' && (
-                <StreamsView
-                  radioStations={radioStations}
-                  currentTrack={currentTrack}
-                  isPlaying={isPlaying}
-                  onPlayStream={handlePlayStream}
-                  onAddCustomStream={handleAddCustomStream}
-                />
-              )}
+          {activeTab === 'equalizer' && (
+            <EqualizerView
+              equalizerGains={equalizerGains}
+              onChangeGains={handleChangeEQGains}
+              equalizerPresets={EQUALIZER_PRESETS}
+              activePresetName={activePresetName}
+              onSelectPreset={handleSelectEQPreset}
+              getAnalyserData={() => audioEngineRef.current?.getAnalyserData() || null}
+              isPlaying={isPlaying}
+            />
+          )}
 
-              {activeTab === 'equalizer' && (
-                <EqualizerView
-                  equalizerGains={equalizerGains}
-                  onChangeGains={handleChangeEQGains}
-                  equalizerPresets={EQUALIZER_PRESETS}
-                  activePresetName={activePresetName}
-                  onSelectPreset={handleSelectEQPreset}
-                  getAnalyserData={() => audioEngineRef.current?.getAnalyserData() || null}
-                  isPlaying={isPlaying}
-                />
-              )}
-
-              {activeTab === 'settings' && (
-                <SettingsView
-                  tracks={tracks}
-                  isDarkMode={isDarkMode}
-                  onToggleTheme={() => setIsDarkMode(!isDarkMode)}
-                  onScanFolder={() => setIsScanModalOpen(true)}
-                  onReloadSamples={handleReloadSamples}
-                  onClearLocalTracks={handleClearLocalTracks}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
+          {activeTab === 'settings' && (
+            <SettingsView
+              tracks={tracks}
+              isDarkMode={isDarkMode}
+              onToggleTheme={() => setIsDarkMode(!isDarkMode)}
+              onScanFolder={() => setIsScanModalOpen(true)}
+              onReloadSamples={handleReloadSamples}
+              onClearLocalTracks={handleClearLocalTracks}
+            />
+          )}
         </main>
 
         {/* Mini Player Sticky Bar */}

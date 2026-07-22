@@ -31,17 +31,6 @@ export interface Playlist {
   updatedAt: number;
 }
 
-export interface RadioStation {
-  id: string;
-  name: string;
-  genre: string;
-  country: string;
-  streamUrl: string;
-  logoUrl: string;
-  bitrate: string;
-  description: string;
-}
-
 export type RepeatMode = 'off' | 'all' | 'one';
 
 export interface EqualizerPreset {
@@ -49,4 +38,4 @@ export interface EqualizerPreset {
   gains: number[]; // 5 bands: 60Hz, 230Hz, 910Hz, 4kHz, 14kHz (in dB, e.g. -12 to +12)
 }
 
-export type TabType = 'library' | 'playlists' | 'streams' | 'equalizer' | 'settings';
+export type TabType = 'library' | 'playlists' | 'equalizer' | 'settings';

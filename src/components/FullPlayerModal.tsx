@@ -19,7 +19,6 @@ import {
   ListPlus,
   Sliders,
   FileText,
-  Radio,
   Gauge,
   Sparkles,
 } from 'lucide-react';
@@ -94,8 +93,6 @@ export const FullPlayerModal: React.FC<FullPlayerModalProps> = ({
     const s = Math.floor(secs % 60);
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
-
-  const isStream = currentTrack?.source === 'stream';
 
   return (
     <AnimatePresence>
@@ -288,20 +285,13 @@ export const FullPlayerModal: React.FC<FullPlayerModalProps> = ({
                     min={0}
                     max={duration || 100}
                     value={currentTime}
-                    disabled={isStream}
                     onChange={(e) => onSeek(Number(e.target.value))}
                     className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-[#c6ff34]"
                   />
                 </div>
                 <div className="flex justify-between text-[11px] font-mono text-neutral-400 mt-1">
                   <span>{formatTime(currentTime)}</span>
-                  {isStream ? (
-                    <span className="flex items-center gap-1 text-red-400 font-bold">
-                      <Radio className="w-3 h-3 animate-pulse" /> DIRECT FLUX
-                    </span>
-                  ) : (
-                    <span>{formatTime(duration)}</span>
-                  )}
+                  <span>{formatTime(duration)}</span>
                 </div>
               </div>
 
@@ -326,7 +316,6 @@ export const FullPlayerModal: React.FC<FullPlayerModalProps> = ({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => onSeekBy(-10)}
-                  disabled={isStream}
                   className="p-2 text-neutral-400 hover:text-white disabled:opacity-30 cursor-pointer"
                 >
                   <RotateCcw className="w-5 h-5" />
@@ -386,7 +375,6 @@ export const FullPlayerModal: React.FC<FullPlayerModalProps> = ({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => onSeekBy(10)}
-                  disabled={isStream}
                   className="p-2 text-neutral-400 hover:text-white disabled:opacity-30 cursor-pointer"
                 >
                   <RotateCw className="w-5 h-5" />

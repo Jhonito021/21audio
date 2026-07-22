@@ -7,7 +7,6 @@ import {
   Music2,
   Trash2,
   ListPlus,
-  Radio,
 } from 'lucide-react';
 import { AudioTrack } from '../types';
 
@@ -110,11 +109,6 @@ export const TrackItem: React.FC<TrackItemProps> = ({
             {track.format === 'FLAC' && (
               <span className="px-1 py-0.2 text-[8px] font-bold rounded bg-[#c6ff34]/20 text-[#c6ff34]">
                 HD
-              </span>
-            )}
-            {track.source === 'stream' && (
-              <span className="flex items-center gap-1 text-[9px] font-bold text-red-400 bg-red-950/60 px-1 py-0.2 rounded">
-                <Radio className="w-2.5 h-2.5 animate-pulse" /> STREAM
               </span>
             )}
           </div>

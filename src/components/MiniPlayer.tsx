@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Pause, SkipForward, Music2, Maximize2, Radio } from 'lucide-react';
+import { Play, Pause, SkipForward, Music2, Maximize2 } from 'lucide-react';
 import { AudioTrack } from '../types';
 
 interface MiniPlayerProps {
@@ -82,11 +82,6 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
                     <h4 className="text-xs font-bold text-white truncate">
                       {currentTrack.title}
                     </h4>
-                    {currentTrack.source === 'stream' && (
-                      <span className="flex items-center gap-1 text-[9px] font-semibold text-red-400 bg-red-950/60 px-1 py-0.5 rounded">
-                        <Radio className="w-2.5 h-2.5 animate-pulse" /> LIVE
-                      </span>
-                    )}
                   </div>
                   <p className="text-[11px] text-neutral-400 truncate">
                     {currentTrack.artist}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Music, ListMusic, Radio, SlidersHorizontal, Settings } from 'lucide-react';
+import { Music, ListMusic, SlidersHorizontal, Settings } from 'lucide-react';
 import { TabType } from '../types';
 
 interface NavigationTabsProps {
@@ -17,7 +17,6 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
   const tabs = [
     { id: 'library' as TabType, label: 'Bibliothèque', icon: Music },
     { id: 'playlists' as TabType, label: 'Playlists', icon: ListMusic, badge: playlistsCount },
-    { id: 'streams' as TabType, label: 'Radios & Flux', icon: Radio },
     { id: 'equalizer' as TabType, label: 'Égaliseur', icon: SlidersHorizontal },
     { id: 'settings' as TabType, label: 'Paramètres', icon: Settings },
   ];
