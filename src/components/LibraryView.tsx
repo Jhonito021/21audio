@@ -125,7 +125,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         ref={fileInputRef}
         type="file"
         multiple
-        accept="audio/*,.mp3,.flac,.m4a,.wav,.ogg"
+        accept="audio/*,video/*,.mp3,.flac,.m4a,.wav,.ogg,.aac,.mp4,.webm,.mkv,.mov,.avi,.3gp"
         className="hidden"
         onChange={handleFileInputChange}
       />
@@ -134,7 +134,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       {isDragOver && (
         <div className="p-6 text-center border-2 border-dashed border-[#c6ff34] rounded-2xl bg-[#c6ff34]/10 text-[#c6ff34] font-bold">
           <Upload className="w-8 h-8 mx-auto mb-2 animate-bounce" />
-          Déposez vos fichiers MP3 / FLAC ici pour les ajouter à 21audio !
+          Déposez vos fichiers Audio & Vidéo ici pour les ajouter à votre lecteur !
         </div>
       )}
 
@@ -145,11 +145,11 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#c6ff34]" />
               <h2 className="text-base font-extrabold text-white tracking-tight">
-                Analyse & Scan de Musique Locale
+                Scan Automatique Audio & Vidéo
               </h2>
             </div>
             <p className="text-xs text-neutral-400 mt-0.5">
-              Explorez le stockage de votre appareil pour ajouter vos fichiers MP3 & FLAC HD.
+              Explorez le stockage de votre appareil pour ajouter automatiquement vos musiques et vidéos.
             </p>
           </div>
 

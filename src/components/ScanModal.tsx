@@ -55,10 +55,10 @@ export const ScanModal: React.FC<ScanModalProps> = ({
                 <FolderSearch className="w-8 h-8" />
               </motion.div>
               <h2 className="text-lg font-black text-white">
-                Scan Automatique des Fichiers Locaux
+                Scan Automatique Audio & Vidéo
               </h2>
               <p className="text-xs text-neutral-400 max-w-xs mx-auto">
-                21audio explore votre stockage pour détecter vos musiques, extraire les métadonnées (titre, artiste, pochette) et les enregistrer localement.
+                L'application explore votre stockage pour détecter vos fichiers Audio et Vidéo, extraire les métadonnées et les classer automatiquement.
               </p>
             </div>
 
@@ -67,7 +67,7 @@ export const ScanModal: React.FC<ScanModalProps> = ({
               <div className="p-4 bg-neutral-950 border border-neutral-800 rounded-2xl text-center space-y-3">
                 <div className="flex items-center justify-center gap-2 text-[#c6ff34] font-bold text-sm">
                   <Disc className="w-5 h-5 animate-spin" />
-                  <span>Analyse des fichiers en cours...</span>
+                  <span>Analyse des médias en cours...</span>
                 </div>
 
                 <div className="w-full bg-neutral-800 h-2 rounded-full overflow-hidden">
@@ -75,7 +75,7 @@ export const ScanModal: React.FC<ScanModalProps> = ({
                 </div>
 
                 <p className="text-xs font-mono text-neutral-400">
-                  Pistes détectées: <strong className="text-white">{scannedCount}</strong>
+                  Fichiers détectés: <strong className="text-white">{scannedCount}</strong>
                 </p>
               </div>
             ) : (
@@ -88,7 +88,7 @@ export const ScanModal: React.FC<ScanModalProps> = ({
                   className="w-full flex items-center justify-between p-4 rounded-2xl bg-[#c6ff34] text-[#171717] font-extrabold text-xs hover:bg-[#b5f020] transition-transform cursor-pointer shadow-lg shadow-[#c6ff34]/20"
                 >
                   <span className="flex items-center gap-2">
-                    <FolderSearch className="w-5 h-5" /> Sélectionner un Dossier Complet
+                    <FolderSearch className="w-5 h-5" /> Parcourir un Dossier Complet
                   </span>
                   <span className="text-[10px] bg-[#171717]/20 px-2 py-0.5 rounded font-mono">
                     Auto Scan
@@ -102,12 +102,12 @@ export const ScanModal: React.FC<ScanModalProps> = ({
                   className="w-full flex items-center justify-between p-4 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <Upload className="w-5 h-5 text-[#c6ff34]" /> Choisir des Fichiers Audio (MP3, FLAC)
+                    <Upload className="w-5 h-5 text-[#c6ff34]" /> Choisir Fichiers Audio & Vidéo
                   </span>
                   <input
                     type="file"
                     multiple
-                    accept="audio/*,.mp3,.flac,.m4a,.wav,.ogg"
+                    accept="audio/*,video/*,.mp3,.flac,.m4a,.wav,.ogg,.aac,.mp4,.webm,.mkv,.mov,.avi,.3gp"
                     className="hidden"
                     onChange={(e) => {
                       if (e.target.files) {
@@ -115,13 +115,13 @@ export const ScanModal: React.FC<ScanModalProps> = ({
                       }
                     }}
                   />
-                  <span className="text-[10px] text-neutral-400">Navigateur</span>
+                  <span className="text-[10px] text-neutral-400 font-mono">Audio + Vidéo</span>
                 </motion.label>
               </div>
             )}
 
             <div className="text-[11px] text-neutral-500 text-center font-mono pt-1">
-              Formats supportés: MP3, FLAC HD, AAC, WAV, OGG
+              Audio: MP3, FLAC, M4A, WAV, OGG | Vidéo: MP4, WEBM, MKV, MOV, AVI
             </div>
           </motion.div>
         </div>

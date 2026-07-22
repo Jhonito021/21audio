@@ -105,6 +105,23 @@ export const VideoView: React.FC<VideoViewProps> = ({ onVideoPlayStateChange }) 
   }, [playbackSpeed]);
 
   useEffect(() => {
+    const reloadVideos = () => {
+      try {
+        const saved = localStorage.getItem('audioflux_videos');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setVideos([...SAMPLE_VIDEOS, ...parsed]);
+        }
+      } catch (err) {
+        console.warn('Failed to reload custom videos:', err);
+      }
+    };
+
+    window.addEventListener('audioflux_videos_updated', reloadVideos);
+    return () => window.removeEventListener('audioflux_videos_updated', reloadVideos);
+  }, []);
+
+  useEffect(() => {
     if (!videoRef.current) return;
     videoRef.current.volume = isMuted ? 0 : volume;
   }, [volume, isMuted]);
@@ -295,7 +312,7 @@ export const VideoView: React.FC<VideoViewProps> = ({ onVideoPlayStateChange }) 
             type="file"
             ref={fileInputRef}
             onChange={handleFileUpload}
-            accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska"
+            accept="video/*,audio/*,.mp4,.webm,.mkv,.mov,.avi,.3gp,.mp3,.flac,.m4a,.wav"
             multiple
             className="hidden"
           />

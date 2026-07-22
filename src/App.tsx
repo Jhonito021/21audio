@@ -414,32 +414,66 @@ export default function App() {
     }
   };
 
-  // Local File Scanner & Importer
+  // Local File Scanner & Importer for both Audio & Video
   const handleImportFiles = async (fileList: FileList | File[]) => {
     const filesArray = Array.from(fileList);
-    const audioFiles = filesArray.filter((f) =>
-      /\.(mp3|flac|m4a|aac|wav|ogg|webm)$/i.test(f.name)
+    const mediaFiles = filesArray.filter((f) =>
+      /\.(mp3|flac|m4a|aac|wav|ogg|webm|mp4|mkv|mov|avi|3gp)$/i.test(f.name)
     );
 
-    if (audioFiles.length === 0) return;
+    if (mediaFiles.length === 0) return;
 
     setIsScanning(true);
     setScannedCount(0);
     const parsedTracks: AudioTrack[] = [];
+    const newVideoItems: any[] = [];
 
-    for (let i = 0; i < audioFiles.length; i++) {
-      const parsed = await parseAudioFile(audioFiles[i]);
+    for (let i = 0; i < mediaFiles.length; i++) {
+      const file = mediaFiles[i];
+      const isVideo = /\.(mp4|mkv|mov|avi|3gp|webm)$/i.test(file.name);
+
+      // Parse as audio track for music player
+      const parsed = await parseAudioFile(file);
       parsedTracks.push(parsed);
+
+      // If video format, also add to VideoView registry
+      if (isVideo) {
+        const videoUrl = URL.createObjectURL(file);
+        newVideoItems.push({
+          id: `custom_vid_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          title: file.name.replace(/\.[^/.]+$/, ''),
+          description: `Vidéo scannée (${(file.size / (1024 * 1024)).toFixed(1)} Mo)`,
+          src: videoUrl,
+          isCustom: true,
+        });
+      }
+
       setScannedCount(i + 1);
-      // Persist in IndexedDB
       await saveTrack(parsed);
     }
 
-    setTracks((prev) => [...parsedTracks, ...prev]);
+    if (parsedTracks.length > 0) {
+      setTracks((prev) => [...parsedTracks, ...prev]);
+    }
+
+    // Save custom videos to local storage registry for VideoView
+    if (newVideoItems.length > 0) {
+      try {
+        const savedStr = localStorage.getItem('audioflux_videos');
+        const existing = savedStr ? JSON.parse(savedStr) : [];
+        const merged = [...existing, ...newVideoItems];
+        localStorage.setItem('audioflux_videos', JSON.stringify(merged));
+        // dispatch custom event to notify VideoView
+        window.dispatchEvent(new Event('audioflux_videos_updated'));
+      } catch (e) {
+        console.warn('LocalStorage video save error:', e);
+      }
+    }
+
     setIsScanning(false);
     setIsScanModalOpen(false);
 
-    // Play first imported track automatically
+    // Play first imported track automatically if available
     if (parsedTracks.length > 0) {
       handlePlayTrack(parsedTracks[0]);
     }
@@ -449,7 +483,7 @@ export default function App() {
   const handleDirectoryScan = async () => {
     if (!('showDirectoryPicker' in window)) {
       alert(
-        "L'API File System Directory n'est pas directement supportée sur ce navigateur. Veuillez utiliser le bouton 'Choisir des Fichiers Audio' pour importer votre musique."
+        "L'API File System Directory n'est pas directement supportée par ce navigateur mobile/web. Veuillez utiliser le bouton 'Choisir Fichiers Audio & Vidéo' ci-dessous pour sélectionner vos médias."
       );
       return;
     }
@@ -465,7 +499,7 @@ export default function App() {
         for await (const entry of handle.values()) {
           if (entry.kind === 'file') {
             const file = await entry.getFile();
-            if (/\.(mp3|flac|m4a|aac|wav|ogg|webm)$/i.test(file.name)) {
+            if (/\.(mp3|flac|m4a|aac|wav|ogg|webm|mp4|mkv|mov|avi|3gp)$/i.test(file.name)) {
               files.push(file);
             }
           } else if (entry.kind === 'directory') {
@@ -480,7 +514,7 @@ export default function App() {
         await handleImportFiles(files);
       } else {
         setIsScanning(false);
-        alert('Aucun fichier MP3 ou FLAC trouvé dans le dossier sélectionné.');
+        alert('Aucun fichier audio ou vidéo trouvé dans le dossier sélectionné.');
       }
     } catch (err: any) {
       setIsScanning(false);
