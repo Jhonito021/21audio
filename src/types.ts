@@ -38,7 +38,7 @@ export interface EqualizerPreset {
   gains: number[]; // 5 bands: 60Hz, 230Hz, 910Hz, 4kHz, 14kHz (in dB, e.g. -12 to +12)
 }
 
-export type TabType = 'library' | 'playlists' | 'equalizer' | 'settings';
+export type TabType = 'library' | 'playlists' | 'video' | 'equalizer' | 'settings';
 
 declare global {
   interface Window {

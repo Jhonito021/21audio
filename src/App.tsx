@@ -26,6 +26,7 @@ import { MiniPlayer } from './components/MiniPlayer';
 import { FullPlayerModal } from './components/FullPlayerModal';
 import { LibraryView } from './components/LibraryView';
 import { PlaylistsView } from './components/PlaylistsView';
+import { VideoView } from './components/VideoView';
 import { EqualizerView } from './components/EqualizerView';
 import { SettingsView } from './components/SettingsView';
 import { ScanModal } from './components/ScanModal';
@@ -516,6 +517,8 @@ export default function App() {
         className={`mx-auto transition-all duration-300 ${
           isMobileFrame
             ? 'max-w-md my-6 min-h-[820px] rounded-[40px] border-8 border-neutral-800 shadow-2xl overflow-hidden bg-[#171717] relative'
+            : activeTab === 'video'
+            ? 'w-full max-w-6xl'
             : 'w-full max-w-4xl'
         }`}
       >
@@ -561,6 +564,17 @@ export default function App() {
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
               onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
+            />
+          )}
+
+          {activeTab === 'video' && (
+            <VideoView
+              onVideoPlayStateChange={(isVideoPlaying) => {
+                if (isVideoPlaying && isPlaying) {
+                  audioEngineRef.current?.pause();
+                  setIsPlaying(false);
+                }
+              }}
             />
           )}
 
