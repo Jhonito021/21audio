@@ -46,8 +46,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<
-    'all' | 'favorites' | 'flac' | 'mp3' | 'local' | 'sample'
+    'all' | 'recent' | 'favorites' | 'flac' | 'mp3' | 'local' | 'sample'
   >('all');
+  const [showRecentSection, setShowRecentSection] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'artist' | 'duration'>('date');
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -91,6 +92,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     if (!matchesSearch) return false;
 
     // Filter pill match
+    if (activeFilter === 'recent') {
+      return recentlyPlayed.some((rp) => rp.id === t.id);
+    }
     if (activeFilter === 'favorites') return t.isFavorite;
     if (activeFilter === 'flac') return t.format === 'FLAC';
     if (activeFilter === 'mp3') return t.format === 'MP3';
@@ -102,6 +106,11 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
   // Sorting
   const sortedTracks = [...filteredTracks].sort((a, b) => {
+    if (activeFilter === 'recent') {
+      const idxA = recentlyPlayed.findIndex((rp) => rp.id === a.id);
+      const idxB = recentlyPlayed.findIndex((rp) => rp.id === b.id);
+      return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+    }
     if (sortBy === 'title') return a.title.localeCompare(b.title);
     if (sortBy === 'artist') return a.artist.localeCompare(b.artist);
     if (sortBy === 'duration') return b.duration - a.duration;
@@ -173,8 +182,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         </div>
       </div>
 
-      {/* Recently Played Section */}
-      {recentlyPlayed && recentlyPlayed.length > 0 && (
+      {/* Recently Played Section (shown when activeFilter is 'recent' or showRecentSection is toggled) */}
+      {recentlyPlayed && recentlyPlayed.length > 0 && (showRecentSection || activeFilter === 'recent') && (
         <div className="bg-neutral-900/80 border border-neutral-800/90 rounded-2xl p-4 shadow-xl space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -192,16 +201,25 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               </div>
             </div>
 
-            {onClearRecentlyPlayed && (
+            <div className="flex items-center gap-2">
+              {onClearRecentlyPlayed && (
+                <button
+                  onClick={onClearRecentlyPlayed}
+                  className="text-neutral-500 hover:text-neutral-300 text-[11px] font-semibold flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-neutral-800 cursor-pointer"
+                  title="Effacer l'historique"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Effacer</span>
+                </button>
+              )}
               <button
-                onClick={onClearRecentlyPlayed}
-                className="text-neutral-500 hover:text-neutral-300 text-[11px] font-semibold flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-neutral-800 cursor-pointer"
-                title="Effacer l'historique"
+                onClick={() => setShowRecentSection(false)}
+                className="text-neutral-400 hover:text-white text-xs px-2 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 cursor-pointer"
+                title="Masquer le bloc"
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Effacer</span>
+                ✕
               </button>
-            )}
+            </div>
           </div>
 
           {/* Cards Grid */}
@@ -333,6 +351,19 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         >
           Tous ({tracks.length})
         </button>
+
+        {recentlyPlayed && recentlyPlayed.length > 0 && (
+          <button
+            onClick={() => setActiveFilter('recent')}
+            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap flex items-center gap-1 transition-colors cursor-pointer ${
+              activeFilter === 'recent'
+                ? 'bg-[#c6ff34] text-[#171717]'
+                : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
+            }`}
+          >
+            <History className="w-3.5 h-3.5" /> Récents ({recentlyPlayed.length})
+          </button>
+        )}
 
         <button
           onClick={() => setActiveFilter('favorites')}

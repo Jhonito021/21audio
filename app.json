@@ -1,13 +1,29 @@
 {
   "expo": {
+    "name": "21audio",
+    "slug": "21audio",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#171717",
+    "primaryColor": "#c6ff34",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.audioflux.app"
+    },
+    "android": {
+      "package": "com.audioflux.app"
+    },
+    "web": {
+      "bundler": "metro"
+    },
     "extra": {
       "eas": {
-        "projectId": "3d264a11-80fc-4fc1-919d-d48035055308"
+        "projectId": "c510d335-c5e4-46a1-959c-6d4c84d0cc4f"
       }
-    },
-    "owner": "jhonito",
-    "android": {
-      "package": "com.yourname.yourprojectname"
     }
   }
 }
