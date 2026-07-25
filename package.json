@@ -2,6 +2,7 @@
   "name": "21audio-mobile",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "yarn@1.22.22",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
