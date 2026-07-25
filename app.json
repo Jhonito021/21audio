@@ -5,6 +5,9 @@
         "projectId": "3d264a11-80fc-4fc1-919d-d48035055308"
       }
     },
-    "owner": "jhonito"
+    "owner": "jhonito",
+    "android": {
+      "package": "com.yourname.yourprojectname"
+    }
   }
 }
