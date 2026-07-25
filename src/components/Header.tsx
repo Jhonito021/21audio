@@ -1,5 +1,5 @@
 import React from 'react';
-import { Disc3, FolderSearch, Moon, Sun, Smartphone, Monitor, Minus, Square, X, Laptop } from 'lucide-react';
+import { Disc3, FolderSearch, Moon, Sun, Smartphone, Monitor } from 'lucide-react';
 
 interface HeaderProps {
   isDarkMode: boolean;
@@ -18,8 +18,6 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleMobileFrame,
   totalTracksCount,
 }) => {
-  const isElectron = typeof window !== 'undefined' && Boolean(window.electronAPI?.isElectron);
-
   return (
     <header className="sticky top-0 z-30 px-4 py-3 border-b border-neutral-800 bg-[#171717]/95 backdrop-blur-md transition-colors select-none">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -38,16 +36,11 @@ export const Header: React.FC<HeaderProps> = ({
                 21<span className="text-[#c6ff34]">audio</span>
               </h1>
               <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-[#c6ff34]/20 text-[#c6ff34]">
-                FLAC / MP3
+                Audio & Vidéo
               </span>
-              {isElectron && (
-                <span className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                  <Laptop className="w-3 h-3" /> Desktop
-                </span>
-              )}
             </div>
             <p className="text-[11px] text-neutral-400 font-medium">
-              {totalTracksCount} pistes détectées
+              {totalTracksCount} pistes & vidéos
             </p>
           </div>
         </div>
@@ -57,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Quick Scan Folder Button */}
           <button
             onClick={onOpenScan}
-            title="Scan rapide dossier audio"
+            title="Scan rapide dossier média"
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#c6ff34] text-[#171717] hover:bg-[#b5f020] transition-transform active:scale-95 shadow-md shadow-[#c6ff34]/10 cursor-pointer"
           >
             <FolderSearch className="w-4 h-4" />
@@ -65,15 +58,13 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Toggle Mobile / Desktop Frame Simulator */}
-          {!isElectron && (
-            <button
-              onClick={onToggleMobileFrame}
-              title={isMobileFrame ? "Vue Plein Écran" : "Vue Cadre Mobile"}
-              className="p-2 text-neutral-300 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors cursor-pointer"
-            >
-              {isMobileFrame ? <Monitor className="w-4 h-4" /> : <Smartphone className="w-4 h-4 text-[#c6ff34]" />}
-            </button>
-          )}
+          <button
+            onClick={onToggleMobileFrame}
+            title={isMobileFrame ? "Vue Large" : "Cadre Mobile"}
+            className="p-2 text-neutral-300 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors cursor-pointer"
+          >
+            {isMobileFrame ? <Monitor className="w-4 h-4" /> : <Smartphone className="w-4 h-4 text-[#c6ff34]" />}
+          </button>
 
           {/* Theme Toggle */}
           <button
@@ -83,33 +74,6 @@ export const Header: React.FC<HeaderProps> = ({
           >
             {isDarkMode ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-indigo-400" />}
           </button>
-
-          {/* Native Electron Window Controls */}
-          {isElectron && (
-            <div className="flex items-center gap-1 ml-2 pl-2 border-l border-neutral-700">
-              <button
-                onClick={() => window.electronAPI?.minimize()}
-                title="Minimiser"
-                className="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded cursor-pointer"
-              >
-                <Minus className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => window.electronAPI?.maximize()}
-                title="Agrandir / Restaurer"
-                className="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded cursor-pointer"
-              >
-                <Square className="w-3 h-3" />
-              </button>
-              <button
-                onClick={() => window.electronAPI?.close()}
-                title="Fermer"
-                className="p-1.5 text-neutral-400 hover:text-red-400 hover:bg-red-950/50 rounded cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </header>

@@ -1,6 +1,6 @@
 {
   "name": "21audio",
-  "description": "Lecteur audio mobile & web haut de gamme avec scan de fichiers locaux (MP3, FLAC), flux en ligne, playlists, visualiseur audio, support MediaSession et thème signature #c6ff34 / #171717.",
+  "description": "Application mobile haut de gamme pour la lecture audio & vidéo avec scan automatique des fichiers locaux, lecteur vidéo HD plein écran, égaliseur et playlists.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

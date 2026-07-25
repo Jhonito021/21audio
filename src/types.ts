@@ -40,15 +40,3 @@ export interface EqualizerPreset {
 
 export type TabType = 'library' | 'playlists' | 'video' | 'equalizer' | 'settings';
 
-declare global {
-  interface Window {
-    electronAPI?: {
-      isElectron: boolean;
-      minimize: () => void;
-      maximize: () => void;
-      close: () => void;
-      getAppVersion: () => Promise<string>;
-    };
-  }
-}
-
