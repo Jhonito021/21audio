@@ -22,40 +22,9 @@ import {
   Gauge,
   Sparkles,
 } from 'lucide-react';
-import { AudioTrack, RepeatMode, EqualizerPreset } from '../types';
 import { AudioVisualizer } from './AudioVisualizer';
 
-interface FullPlayerModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  currentTrack: AudioTrack | null;
-  isPlaying: boolean;
-  isLoading: boolean;
-  currentTime: number;
-  duration: number;
-  volume: number;
-  repeatMode: RepeatMode;
-  isShuffle: boolean;
-  playbackRate: number;
-  onTogglePlay: () => void;
-  onStop: () => void;
-  onSeek: (seconds: number) => void;
-  onSeekBy: (deltaSeconds: number) => void;
-  onNext: () => void;
-  onPrev: () => void;
-  onToggleShuffle: () => void;
-  onChangeRepeatMode: () => void;
-  onChangeVolume: (volume: number) => void;
-  onChangePlaybackRate: (rate: number) => void;
-  onToggleFavorite: (trackId: string) => void;
-  onAddToPlaylist: (track: AudioTrack) => void;
-  getAnalyserData: () => Uint8Array | null;
-  equalizerPresets: EqualizerPreset[];
-  activePresetName: string;
-  onSelectPreset: (preset: EqualizerPreset) => void;
-}
-
-export const FullPlayerModal: React.FC<FullPlayerModalProps> = ({
+export const FullPlayerModal = ({
   isOpen,
   onClose,
   currentTrack,
@@ -87,7 +56,7 @@ export const FullPlayerModal: React.FC<FullPlayerModalProps> = ({
   const [showLyrics, setShowLyrics] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
 
-  const formatTime = (secs: number) => {
+  const formatTime = (secs) => {
     if (isNaN(secs) || secs < 0) return '0:00';
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
@@ -498,4 +467,3 @@ export const FullPlayerModal: React.FC<FullPlayerModalProps> = ({
     </AnimatePresence>
   );
 };
-

@@ -1,24 +1,16 @@
 import React, { useEffect, useRef } from 'react';
 
-interface AudioVisualizerProps {
-  getAnalyserData: () => Uint8Array | null;
-  isPlaying: boolean;
-  accentColor?: string;
-  height?: number;
-  barCount?: number;
-}
-
-export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
+export const AudioVisualizer = ({
   getAnalyserData,
   isPlaying,
   accentColor = '#c6ff34',
   height = 64,
   barCount = 32,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    let animId: number;
+    let animId;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');

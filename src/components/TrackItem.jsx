@@ -8,19 +8,8 @@ import {
   Trash2,
   ListPlus,
 } from 'lucide-react';
-import { AudioTrack } from '../types';
 
-interface TrackItemProps {
-  track: AudioTrack;
-  isCurrent: boolean;
-  isPlaying: boolean;
-  onPlayTrack: (track: AudioTrack) => void;
-  onToggleFavorite: (trackId: string) => void;
-  onAddToPlaylist: (track: AudioTrack) => void;
-  onDeleteTrack?: (trackId: string) => void;
-}
-
-export const TrackItem: React.FC<TrackItemProps> = ({
+export const TrackItem = ({
   track,
   isCurrent,
   isPlaying,
@@ -31,7 +20,7 @@ export const TrackItem: React.FC<TrackItemProps> = ({
 }) => {
   const [showMenu, setShowMenu] = useState(false);
 
-  const formatDuration = (secs: number) => {
+  const formatDuration = (secs) => {
     if (!secs || secs <= 0) return '--:--';
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
@@ -192,4 +181,3 @@ export const TrackItem: React.FC<TrackItemProps> = ({
     </motion.div>
   );
 };
-

@@ -1,6 +1,4 @@
-import { AudioTrack, EqualizerPreset } from '../types';
-
-export const SAMPLE_TRACKS: AudioTrack[] = [
+export const SAMPLE_TRACKS = [
   {
     id: 'sample-1',
     title: 'Midnight Cyber City',
@@ -78,7 +76,7 @@ export const SAMPLE_TRACKS: AudioTrack[] = [
   }
 ];
 
-export const EQUALIZER_PRESETS: EqualizerPreset[] = [
+export const EQUALIZER_PRESETS = [
   { name: 'Plat / Neutre', gains: [0, 0, 0, 0, 0] },
   { name: 'Basses Rehaussées (Bass Boost)', gains: [8, 5, 1, 0, -1] },
   { name: 'Acoustique / Vocaux', gains: [-1, 2, 6, 4, 1] },

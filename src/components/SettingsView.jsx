@@ -5,25 +5,14 @@ import {
   Trash2,
   Moon,
   Sun,
-  Info,
   Disc3,
   ShieldCheck,
   Radio,
   FileAudio,
   FolderSearch,
 } from 'lucide-react';
-import { AudioTrack } from '../types';
 
-interface SettingsViewProps {
-  tracks: AudioTrack[];
-  isDarkMode: boolean;
-  onToggleTheme: () => void;
-  onScanFolder: () => void;
-  onReloadSamples: () => void;
-  onClearLocalTracks: () => void;
-}
-
-export const SettingsView: React.FC<SettingsViewProps> = ({
+export const SettingsView = ({
   tracks,
   isDarkMode,
   onToggleTheme,

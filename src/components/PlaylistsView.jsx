@@ -11,29 +11,9 @@ import {
   Music2,
   Disc,
 } from 'lucide-react';
-import { Playlist, AudioTrack } from '../types';
 import { TrackItem } from './TrackItem';
 
-interface PlaylistsViewProps {
-  playlists: Playlist[];
-  tracks: AudioTrack[];
-  currentTrack: AudioTrack | null;
-  isPlaying: boolean;
-  onCreatePlaylist: (name: string, description: string) => void;
-  onDeletePlaylist: (id: string) => void;
-  onRemoveTrackFromPlaylist: (playlistId: string, trackId: string) => void;
-  onReorderPlaylistTrack: (
-    playlistId: string,
-    fromIndex: number,
-    toIndex: number
-  ) => void;
-  onPlayPlaylist: (playlist: Playlist) => void;
-  onPlayTrack: (track: AudioTrack) => void;
-  onToggleFavorite: (trackId: string) => void;
-  onAddToPlaylist: (track: AudioTrack) => void;
-}
-
-export const PlaylistsView: React.FC<PlaylistsViewProps> = ({
+export const PlaylistsView = ({
   playlists,
   tracks,
   currentTrack,
@@ -47,12 +27,12 @@ export const PlaylistsView: React.FC<PlaylistsViewProps> = ({
   onToggleFavorite,
   onAddToPlaylist,
 }) => {
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [newPlaylistDesc, setNewPlaylistDesc] = useState('');
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = (e) => {
     e.preventDefault();
     if (!newPlaylistName.trim()) return;
     onCreatePlaylist(newPlaylistName.trim(), newPlaylistDesc.trim());
@@ -65,7 +45,7 @@ export const PlaylistsView: React.FC<PlaylistsViewProps> = ({
   if (selectedPlaylist) {
     const playlistTrackList = selectedPlaylist.trackIds
       .map((id) => tracks.find((t) => t.id === id))
-      .filter((t): t is AudioTrack => t !== undefined);
+      .filter((t) => t !== undefined);
 
     return (
       <div className="space-y-4 pb-36">

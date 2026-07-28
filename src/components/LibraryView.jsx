@@ -5,33 +5,16 @@ import {
   FolderOpen,
   Upload,
   Heart,
-  Music,
   Disc,
   Sparkles,
   History,
   Play,
   Trash2,
   Music2,
-  Clock,
 } from 'lucide-react';
-import { AudioTrack } from '../types';
 import { TrackItem } from './TrackItem';
 
-interface LibraryViewProps {
-  tracks: AudioTrack[];
-  recentlyPlayed?: AudioTrack[];
-  currentTrack: AudioTrack | null;
-  isPlaying: boolean;
-  onPlayTrack: (track: AudioTrack) => void;
-  onToggleFavorite: (trackId: string) => void;
-  onAddToPlaylist: (track: AudioTrack) => void;
-  onDeleteTrack: (trackId: string) => void;
-  onScanFolder: () => void;
-  onImportFiles: (files: FileList | File[]) => void;
-  onClearRecentlyPlayed?: () => void;
-}
-
-export const LibraryView: React.FC<LibraryViewProps> = ({
+export const LibraryView = ({
   tracks,
   recentlyPlayed = [],
   currentTrack,
@@ -45,27 +28,25 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onClearRecentlyPlayed,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<
-    'all' | 'recent' | 'favorites' | 'flac' | 'mp3' | 'local' | 'sample'
-  >('all');
+  const [activeFilter, setActiveFilter] = useState('all');
   const [showRecentSection, setShowRecentSection] = useState(false);
-  const [sortBy, setSortBy] = useState<'date' | 'title' | 'artist' | 'duration'>('date');
+  const [sortBy, setSortBy] = useState('date');
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef(null);
 
   // Drag and drop handlers
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragOver(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = (e) => {
     e.preventDefault();
     setIsDragOver(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -73,7 +54,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     }
   };
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       onImportFiles(e.target.files);
     }
@@ -134,7 +115,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         ref={fileInputRef}
         type="file"
         multiple
-        accept="audio/*,video/*,.mp3,.flac,.m4a,.wav,.ogg,.aac,.mp4,.webm,.mkv,.mov,.avi,.3gp"
+        accept="audio/*,.mp3,.flac,.m4a,.wav,.ogg,.aac"
         className="hidden"
         onChange={handleFileInputChange}
       />
@@ -143,7 +124,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       {isDragOver && (
         <div className="p-6 text-center border-2 border-dashed border-[#c6ff34] rounded-2xl bg-[#c6ff34]/10 text-[#c6ff34] font-bold">
           <Upload className="w-8 h-8 mx-auto mb-2 animate-bounce" />
-          Déposez vos fichiers Audio & Vidéo ici pour les ajouter à votre lecteur !
+          Déposez vos fichiers Audio ici pour les ajouter à votre lecteur !
         </div>
       )}
 
@@ -154,11 +135,11 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#c6ff34]" />
               <h2 className="text-base font-extrabold text-white tracking-tight">
-                Scan Automatique Audio & Vidéo
+                Scan Automatique Audio
               </h2>
             </div>
             <p className="text-xs text-neutral-400 mt-0.5">
-              Explorez le stockage de votre appareil pour ajouter automatiquement vos musiques et vidéos.
+              Explorez le stockage de votre appareil pour ajouter automatiquement vos musiques.
             </p>
           </div>
 
@@ -182,7 +163,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         </div>
       </div>
 
-      {/* Recently Played Section (shown when activeFilter is 'recent' or showRecentSection is toggled) */}
+      {/* Recently Played Section */}
       {recentlyPlayed && recentlyPlayed.length > 0 && (showRecentSection || activeFilter === 'recent') && (
         <div className="bg-neutral-900/80 border border-neutral-800/90 rounded-2xl p-4 shadow-xl space-y-3">
           <div className="flex items-center justify-between">
@@ -328,7 +309,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         <div className="relative">
           <select
             value={sortBy}
-            onChange={(e: any) => setSortBy(e.target.value)}
+            onChange={(e) => setSortBy(e.target.value)}
             className="bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-2.5 text-xs font-semibold text-neutral-300 hover:text-white focus:outline-none focus:border-[#c6ff34] cursor-pointer"
           >
             <option value="date">Récent</option>

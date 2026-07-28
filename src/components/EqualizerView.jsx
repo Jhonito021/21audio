@@ -1,19 +1,8 @@
 import React from 'react';
-import { SlidersHorizontal, RotateCcw, Volume2, Sparkles, Activity } from 'lucide-react';
-import { EqualizerPreset } from '../types';
+import { SlidersHorizontal, RotateCcw, Activity, Sparkles } from 'lucide-react';
 import { AudioVisualizer } from './AudioVisualizer';
 
-interface EqualizerViewProps {
-  equalizerGains: number[]; // 5 band gains in dB
-  onChangeGains: (gains: number[]) => void;
-  equalizerPresets: EqualizerPreset[];
-  activePresetName: string;
-  onSelectPreset: (preset: EqualizerPreset) => void;
-  getAnalyserData: () => Uint8Array | null;
-  isPlaying: boolean;
-}
-
-export const EqualizerView: React.FC<EqualizerViewProps> = ({
+export const EqualizerView = ({
   equalizerGains,
   onChangeGains,
   equalizerPresets,
@@ -30,7 +19,7 @@ export const EqualizerView: React.FC<EqualizerViewProps> = ({
     { freq: '14 kHz', label: 'Brillance' },
   ];
 
-  const handleSliderChange = (index: number, val: number) => {
+  const handleSliderChange = (index, val) => {
     const newGains = [...equalizerGains];
     newGains[index] = val;
     onChangeGains(newGains);

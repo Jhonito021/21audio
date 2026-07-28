@@ -1,40 +1,30 @@
-import { AudioTrack, RepeatMode } from '../types';
-
-export interface AudioEngineListeners {
-  onTimeUpdate: (currentTime: number, duration: number) => void;
-  onEnded: () => void;
-  onStateChange: (isPlaying: boolean, isLoading: boolean) => void;
-  onError: (errorMsg: string) => void;
-}
-
 export class AudioEngine {
-  private audio: HTMLAudioElement;
-  private audioCtx: AudioContext | null = null;
-  private sourceNode: MediaElementAudioSourceNode | null = null;
-  private analyserNode: AnalyserNode | null = null;
-  private eqFilters: BiquadFilterNode[] = [];
-  private gainNode: GainNode | null = null;
-
-  private isPlaying: boolean = false;
-  private isLoading: boolean = false;
-  private currentTrack: AudioTrack | null = null;
-  private listeners: AudioEngineListeners | null = null;
-
-  private equalizerGains: number[] = [0, 0, 0, 0, 0]; // 5 frequencies: 60Hz, 230Hz, 910Hz, 4kHz, 14kHz
-  private isAudioCtxConnected: boolean = false;
-
   constructor() {
     this.audio = new Audio();
     this.audio.crossOrigin = 'anonymous';
 
+    this.audioCtx = null;
+    this.sourceNode = null;
+    this.analyserNode = null;
+    this.eqFilters = [];
+    this.gainNode = null;
+
+    this.isPlaying = false;
+    this.isLoading = false;
+    this.currentTrack = null;
+    this.listeners = null;
+
+    this.equalizerGains = [0, 0, 0, 0, 0]; // 5 frequencies: 60Hz, 230Hz, 910Hz, 4kHz, 14kHz
+    this.isAudioCtxConnected = false;
+
     this.setupAudioEvents();
   }
 
-  public setListeners(listeners: AudioEngineListeners) {
+  setListeners(listeners) {
     this.listeners = listeners;
   }
 
-  private setupAudioEvents() {
+  setupAudioEvents() {
     this.audio.addEventListener('timeupdate', () => {
       if (this.listeners) {
         this.listeners.onTimeUpdate(
@@ -87,7 +77,7 @@ export class AudioEngine {
     });
   }
 
-  private notifyState() {
+  notifyState() {
     if (this.listeners) {
       this.listeners.onStateChange(this.isPlaying, this.isLoading);
     }
@@ -96,11 +86,11 @@ export class AudioEngine {
   /**
    * Initializes Web Audio API nodes for EQ and Visualizer
    */
-  private initWebAudio() {
+  initWebAudio() {
     if (this.isAudioCtxConnected) return;
 
     try {
-      const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtxClass) return;
 
       this.audioCtx = new AudioCtxClass();
@@ -114,7 +104,7 @@ export class AudioEngine {
       // 5 Band EQ frequencies
       const frequencies = [60, 230, 910, 4000, 14000];
       this.eqFilters = frequencies.map((freq, index) => {
-        const filter = this.audioCtx!.createBiquadFilter();
+        const filter = this.audioCtx.createBiquadFilter();
         if (index === 0) filter.type = 'lowshelf';
         else if (index === frequencies.length - 1) filter.type = 'highshelf';
         else filter.type = 'peaking';
@@ -125,7 +115,7 @@ export class AudioEngine {
       });
 
       // Connect source -> EQ1 -> EQ2 -> EQ3 -> EQ4 -> EQ5 -> Analyser -> Gain -> Destination
-      let currentNode: AudioNode = this.sourceNode;
+      let currentNode = this.sourceNode;
       for (const filter of this.eqFilters) {
         currentNode.connect(filter);
         currentNode = filter;
@@ -141,7 +131,7 @@ export class AudioEngine {
     }
   }
 
-  public async loadAndPlay(track: AudioTrack) {
+  async loadAndPlay(track) {
     this.currentTrack = track;
     this.audio.src = track.src;
     this.audio.load();
@@ -159,41 +149,41 @@ export class AudioEngine {
     }
   }
 
-  public play() {
+  play() {
     if (this.audioCtx && this.audioCtx.state === 'suspended') {
       this.audioCtx.resume();
     }
     this.audio.play().catch(console.warn);
   }
 
-  public pause() {
+  pause() {
     this.audio.pause();
   }
 
-  public stop() {
+  stop() {
     this.audio.pause();
     this.audio.currentTime = 0;
   }
 
-  public seek(seconds: number) {
+  seek(seconds) {
     if (this.audio.duration) {
       this.audio.currentTime = Math.max(0, Math.min(seconds, this.audio.duration));
     }
   }
 
-  public seekBy(deltaSeconds: number) {
+  seekBy(deltaSeconds) {
     this.seek(this.audio.currentTime + deltaSeconds);
   }
 
-  public setVolume(volume: number) {
+  setVolume(volume) {
     this.audio.volume = Math.max(0, Math.min(1, volume));
   }
 
-  public setPlaybackRate(rate: number) {
+  setPlaybackRate(rate) {
     this.audio.playbackRate = rate;
   }
 
-  public setEqualizer(gains: number[]) {
+  setEqualizer(gains) {
     this.equalizerGains = gains;
     if (this.eqFilters.length === gains.length) {
       this.eqFilters.forEach((filter, i) => {
@@ -202,7 +192,7 @@ export class AudioEngine {
     }
   }
 
-  public getAnalyserData(): Uint8Array | null {
+  getAnalyserData() {
     if (!this.analyserNode) return null;
     const bufferLength = this.analyserNode.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
@@ -210,16 +200,16 @@ export class AudioEngine {
     return dataArray;
   }
 
-  public getCurrentTime(): number {
+  getCurrentTime() {
     return this.audio.currentTime || 0;
   }
 
-  public getDuration(): number {
+  getDuration() {
     return this.audio.duration || 0;
   }
 
   // MediaSession API setup for background controls, lockscreen & system notifications
-  private updateMediaSessionMetadata(track: AudioTrack) {
+  updateMediaSessionMetadata(track) {
     if (!('mediaSession' in navigator)) return;
 
     const artwork = track.coverUrl
@@ -240,14 +230,7 @@ export class AudioEngine {
     });
   }
 
-  public setMediaSessionActionHandlers(actions: {
-    onPlay: () => void;
-    onPause: () => void;
-    onNext: () => void;
-    onPrev: () => void;
-    onSeekBackward: () => void;
-    onSeekForward: () => void;
-  }) {
+  setMediaSessionActionHandlers(actions) {
     if (!('mediaSession' in navigator)) return;
 
     try {
@@ -268,7 +251,7 @@ export class AudioEngine {
     }
   }
 
-  private updateMediaSessionState(state: 'playing' | 'paused') {
+  updateMediaSessionState(state) {
     if ('mediaSession' in navigator) {
       navigator.mediaSession.playbackState = state;
     }

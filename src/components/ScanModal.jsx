@@ -1,17 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { FolderSearch, CheckCircle, Disc, X, Upload } from 'lucide-react';
+import { FolderSearch, Disc, X, Upload } from 'lucide-react';
 
-interface ScanModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onStartDirectoryScan: () => void;
-  onSelectMultipleFiles: (files: FileList) => void;
-  isScanning: boolean;
-  scannedCount: number;
-}
-
-export const ScanModal: React.FC<ScanModalProps> = ({
+export const ScanModal = ({
   isOpen,
   onClose,
   onStartDirectoryScan,
@@ -55,10 +46,10 @@ export const ScanModal: React.FC<ScanModalProps> = ({
                 <FolderSearch className="w-8 h-8" />
               </motion.div>
               <h2 className="text-lg font-black text-white">
-                Scan Automatique Audio & Vidéo
+                Scan Automatique Audio
               </h2>
               <p className="text-xs text-neutral-400 max-w-xs mx-auto">
-                L'application explore votre stockage pour détecter vos fichiers Audio et Vidéo, extraire les métadonnées et les classer automatiquement.
+                L'application explore votre stockage pour détecter vos fichiers Audio, extraire les métadonnées et les classer automatiquement.
               </p>
             </div>
 
@@ -67,7 +58,7 @@ export const ScanModal: React.FC<ScanModalProps> = ({
               <div className="p-4 bg-neutral-950 border border-neutral-800 rounded-2xl text-center space-y-3">
                 <div className="flex items-center justify-center gap-2 text-[#c6ff34] font-bold text-sm">
                   <Disc className="w-5 h-5 animate-spin" />
-                  <span>Analyse des médias en cours...</span>
+                  <span>Analyse des fichiers audio en cours...</span>
                 </div>
 
                 <div className="w-full bg-neutral-800 h-2 rounded-full overflow-hidden">
@@ -102,12 +93,12 @@ export const ScanModal: React.FC<ScanModalProps> = ({
                   className="w-full flex items-center justify-between p-4 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <Upload className="w-5 h-5 text-[#c6ff34]" /> Choisir Fichiers Audio & Vidéo
+                    <Upload className="w-5 h-5 text-[#c6ff34]" /> Choisir Fichiers Audio
                   </span>
                   <input
                     type="file"
                     multiple
-                    accept="audio/*,video/*,.mp3,.flac,.m4a,.wav,.ogg,.aac,.mp4,.webm,.mkv,.mov,.avi,.3gp"
+                    accept="audio/*,.mp3,.flac,.m4a,.wav,.ogg,.aac"
                     className="hidden"
                     onChange={(e) => {
                       if (e.target.files) {
@@ -115,13 +106,13 @@ export const ScanModal: React.FC<ScanModalProps> = ({
                       }
                     }}
                   />
-                  <span className="text-[10px] text-neutral-400 font-mono">Audio + Vidéo</span>
+                  <span className="text-[10px] text-neutral-400 font-mono">Fichiers Audio</span>
                 </motion.label>
               </div>
             )}
 
             <div className="text-[11px] text-neutral-500 text-center font-mono pt-1">
-              Audio: MP3, FLAC, M4A, WAV, OGG | Vidéo: MP4, WEBM, MKV, MOV, AVI
+              Formats supportés: MP3, FLAC, M4A, WAV, OGG, AAC
             </div>
           </motion.div>
         </div>
@@ -129,4 +120,3 @@ export const ScanModal: React.FC<ScanModalProps> = ({
     </AnimatePresence>
   );
 };
-

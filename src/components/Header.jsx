@@ -1,16 +1,7 @@
 import React from 'react';
 import { Disc3, FolderSearch, Moon, Sun, Smartphone, Monitor } from 'lucide-react';
 
-interface HeaderProps {
-  isDarkMode: boolean;
-  onToggleTheme: () => void;
-  onOpenScan: () => void;
-  isMobileFrame: boolean;
-  onToggleMobileFrame: () => void;
-  totalTracksCount: number;
-}
-
-export const Header: React.FC<HeaderProps> = ({
+export const Header = ({
   isDarkMode,
   onToggleTheme,
   onOpenScan,
@@ -36,11 +27,11 @@ export const Header: React.FC<HeaderProps> = ({
                 21<span className="text-[#c6ff34]">audio</span>
               </h1>
               <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-[#c6ff34]/20 text-[#c6ff34]">
-                Audio & Vidéo
+                Lecteur Audio
               </span>
             </div>
             <p className="text-[11px] text-neutral-400 font-medium">
-              {totalTracksCount} pistes & vidéos
+              {totalTracksCount} pistes
             </p>
           </div>
         </div>
@@ -50,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Quick Scan Folder Button */}
           <button
             onClick={onOpenScan}
-            title="Scan rapide dossier média"
+            title="Scan rapide dossier audio"
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#c6ff34] text-[#171717] hover:bg-[#b5f020] transition-transform active:scale-95 shadow-md shadow-[#c6ff34]/10 cursor-pointer"
           >
             <FolderSearch className="w-4 h-4" />
@@ -79,4 +70,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-

@@ -1,20 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Pause, SkipForward, Music2, Maximize2 } from 'lucide-react';
-import { AudioTrack } from '../types';
 
-interface MiniPlayerProps {
-  currentTrack: AudioTrack | null;
-  isPlaying: boolean;
-  isLoading: boolean;
-  currentTime: number;
-  duration: number;
-  onTogglePlay: () => void;
-  onNext: () => void;
-  onOpenFullPlayer: () => void;
-}
-
-export const MiniPlayer: React.FC<MiniPlayerProps> = ({
+export const MiniPlayer = ({
   currentTrack,
   isPlaying,
   isLoading,
@@ -138,4 +126,3 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
     </AnimatePresence>
   );
 };
-

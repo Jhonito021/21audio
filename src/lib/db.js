@@ -1,30 +1,13 @@
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { AudioTrack, Playlist } from '../types';
-
-interface AudioAppDB extends DBSchema {
-  tracks: {
-    key: string;
-    value: AudioTrack;
-    indexes: { 'by-source': string; 'by-title': string };
-  };
-  playlists: {
-    key: string;
-    value: Playlist;
-  };
-  settings: {
-    key: string;
-    value: any;
-  };
-}
+import { openDB } from 'idb';
 
 const DB_NAME = '21audio_database';
 const DB_VERSION = 1;
 
-let dbPromise: Promise<IDBPDatabase<AudioAppDB>> | null = null;
+let dbPromise = null;
 
 export function getDB() {
   if (!dbPromise) {
-    dbPromise = openDB<AudioAppDB>(DB_NAME, DB_VERSION, {
+    dbPromise = openDB(DB_NAME, DB_VERSION, {
       upgrade(db) {
         // Tracks store
         if (!db.objectStoreNames.contains('tracks')) {
@@ -49,12 +32,12 @@ export function getDB() {
 }
 
 // Track operations
-export async function saveTrack(track: AudioTrack): Promise<void> {
+export async function saveTrack(track) {
   const db = await getDB();
   await db.put('tracks', track);
 }
 
-export async function saveTracksBatch(tracks: AudioTrack[]): Promise<void> {
+export async function saveTracksBatch(tracks) {
   const db = await getDB();
   const tx = db.transaction('tracks', 'readwrite');
   for (const t of tracks) {
@@ -63,39 +46,39 @@ export async function saveTracksBatch(tracks: AudioTrack[]): Promise<void> {
   await tx.done;
 }
 
-export async function getAllTracksFromDB(): Promise<AudioTrack[]> {
+export async function getAllTracksFromDB() {
   const db = await getDB();
   return db.getAll('tracks');
 }
 
-export async function deleteTrackFromDB(id: string): Promise<void> {
+export async function deleteTrackFromDB(id) {
   const db = await getDB();
   await db.delete('tracks', id);
 }
 
 // Playlist operations
-export async function savePlaylistDB(playlist: Playlist): Promise<void> {
+export async function savePlaylistDB(playlist) {
   const db = await getDB();
   await db.put('playlists', playlist);
 }
 
-export async function getAllPlaylistsDB(): Promise<Playlist[]> {
+export async function getAllPlaylistsDB() {
   const db = await getDB();
   return db.getAll('playlists');
 }
 
-export async function deletePlaylistDB(id: string): Promise<void> {
+export async function deletePlaylistDB(id) {
   const db = await getDB();
   await db.delete('playlists', id);
 }
 
 // Settings operations
-export async function saveSettingDB(key: string, value: any): Promise<void> {
+export async function saveSettingDB(key, value) {
   const db = await getDB();
   await db.put('settings', value, key);
 }
 
-export async function getSettingDB(key: string, defaultValue?: any): Promise<any> {
+export async function getSettingDB(key, defaultValue) {
   const db = await getDB();
   const val = await db.get('settings', key);
   return val !== undefined ? val : defaultValue;

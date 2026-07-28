@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import {
-  AudioTrack,
-  Playlist,
-  RepeatMode,
-  TabType,
-  EqualizerPreset,
-} from './types';
 import { SAMPLE_TRACKS, EQUALIZER_PRESETS } from './lib/sampleTracks';
 import { parseAudioFile } from './lib/metadataParser';
 import { AudioEngine } from './lib/audioEngine';
@@ -26,7 +19,6 @@ import { MiniPlayer } from './components/MiniPlayer';
 import { FullPlayerModal } from './components/FullPlayerModal';
 import { LibraryView } from './components/LibraryView';
 import { PlaylistsView } from './components/PlaylistsView';
-import { VideoView } from './components/VideoView';
 import { EqualizerView } from './components/EqualizerView';
 import { SettingsView } from './components/SettingsView';
 import { ScanModal } from './components/ScanModal';
@@ -35,9 +27,9 @@ import { Plus, ListPlus, X, Check } from 'lucide-react';
 
 export default function App() {
   // App state
-  const [tracks, setTracks] = useState<AudioTrack[]>([]);
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [recentlyPlayed, setRecentlyPlayed] = useState<AudioTrack[]>(() => {
+  const [tracks, setTracks] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState(() => {
     try {
       const saved = localStorage.getItem('21audio_recently_played_tracks');
       return saved ? JSON.parse(saved) : [];
@@ -46,23 +38,23 @@ export default function App() {
     }
   });
   
-  const [activeTab, setActiveTab] = useState<TabType>('library');
+  const [activeTab, setActiveTab] = useState('library');
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isMobileFrame, setIsMobileFrame] = useState(false);
 
   // Player state
-  const [currentTrack, setCurrentTrack] = useState<AudioTrack | null>(null);
+  const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.85);
-  const [repeatMode, setRepeatMode] = useState<RepeatMode>('off');
+  const [repeatMode, setRepeatMode] = useState('off');
   const [isShuffle, setIsShuffle] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   
   // Equalizer state
-  const [equalizerGains, setEqualizerGains] = useState<number[]>([0, 0, 0, 0, 0]);
+  const [equalizerGains, setEqualizerGains] = useState([0, 0, 0, 0, 0]);
   const [activePresetName, setActivePresetName] = useState('Plat / Neutre');
 
   // Modals
@@ -72,10 +64,10 @@ export default function App() {
   const [scannedCount, setScannedCount] = useState(0);
 
   // Add to playlist modal
-  const [trackToAddToPlaylist, setTrackToAddToPlaylist] = useState<AudioTrack | null>(null);
+  const [trackToAddToPlaylist, setTrackToAddToPlaylist] = useState(null);
 
   // Audio Engine Singleton Reference
-  const audioEngineRef = useRef<AudioEngine | null>(null);
+  const audioEngineRef = useRef(null);
 
   // Initialize Audio Engine once
   useEffect(() => {
@@ -144,7 +136,7 @@ export default function App() {
           setPlaylists(savedPlaylists);
         } else {
           // Default initial playlist
-          const defaultPlaylist: Playlist = {
+          const defaultPlaylist = {
             id: 'playlist-default-1',
             name: 'Ma Sélection 21',
             description: 'Vos morceaux préférés rassemblés dans 21audio',
@@ -198,7 +190,7 @@ export default function App() {
     }
   };
 
-  const handlePlayTrack = (track: AudioTrack) => {
+  const handlePlayTrack = (track) => {
     setCurrentTrack(track);
 
     // Track recently played (last 5)
@@ -226,33 +218,33 @@ export default function App() {
     } catch {}
   };
 
-  const handleSeek = (secs: number) => {
+  const handleSeek = (secs) => {
     if (audioEngineRef.current) {
       audioEngineRef.current.seek(secs);
     }
   };
 
-  const handleSeekBy = (deltaSecs: number) => {
+  const handleSeekBy = (deltaSecs) => {
     if (audioEngineRef.current) {
       audioEngineRef.current.seekBy(deltaSecs);
     }
   };
 
-  const handleChangeVolume = (vol: number) => {
+  const handleChangeVolume = (vol) => {
     setVolume(vol);
     if (audioEngineRef.current) {
       audioEngineRef.current.setVolume(vol);
     }
   };
 
-  const handleChangePlaybackRate = (rate: number) => {
+  const handleChangePlaybackRate = (rate) => {
     setPlaybackRate(rate);
     if (audioEngineRef.current) {
       audioEngineRef.current.setPlaybackRate(rate);
     }
   };
 
-  const handleSelectEQPreset = (preset: EqualizerPreset) => {
+  const handleSelectEQPreset = (preset) => {
     setActivePresetName(preset.name);
     setEqualizerGains(preset.gains);
     if (audioEngineRef.current) {
@@ -260,7 +252,7 @@ export default function App() {
     }
   };
 
-  const handleChangeEQGains = (gains: number[]) => {
+  const handleChangeEQGains = (gains) => {
     setActivePresetName('Personnalisé');
     setEqualizerGains(gains);
     if (audioEngineRef.current) {
@@ -305,7 +297,7 @@ export default function App() {
   };
 
   // Favorites
-  const handleToggleFavorite = async (trackId: string) => {
+  const handleToggleFavorite = async (trackId) => {
     const updated = tracks.map((t) => {
       if (t.id === trackId) {
         const nextFav = !t.isFavorite;
@@ -323,7 +315,7 @@ export default function App() {
   };
 
   // Local track deletion
-  const handleDeleteTrack = async (trackId: string) => {
+  const handleDeleteTrack = async (trackId) => {
     const filtered = tracks.filter((t) => t.id !== trackId);
     setTracks(filtered);
     setRecentlyPlayed((prev) => prev.filter((t) => t.id !== trackId));
@@ -336,8 +328,8 @@ export default function App() {
   };
 
   // Playlists management
-  const handleCreatePlaylist = async (name: string, description: string) => {
-    const newPlaylist: Playlist = {
+  const handleCreatePlaylist = async (name, description) => {
+    const newPlaylist = {
       id: `playlist-${Date.now()}`,
       name,
       description,
@@ -350,13 +342,13 @@ export default function App() {
     await savePlaylistDB(newPlaylist);
   };
 
-  const handleDeletePlaylist = async (id: string) => {
+  const handleDeletePlaylist = async (id) => {
     const updated = playlists.filter((p) => p.id !== id);
     setPlaylists(updated);
     await deletePlaylistDB(id);
   };
 
-  const handleAddTrackToPlaylistById = async (playlistId: string, trackId: string) => {
+  const handleAddTrackToPlaylistById = async (playlistId, trackId) => {
     const updated = playlists.map((p) => {
       if (p.id === playlistId && !p.trackIds.includes(trackId)) {
         const newP = { ...p, trackIds: [...p.trackIds, trackId], updatedAt: Date.now() };
@@ -369,7 +361,7 @@ export default function App() {
     setTrackToAddToPlaylist(null);
   };
 
-  const handleRemoveTrackFromPlaylist = async (playlistId: string, trackId: string) => {
+  const handleRemoveTrackFromPlaylist = async (playlistId, trackId) => {
     const updated = playlists.map((p) => {
       if (p.id === playlistId) {
         const newP = {
@@ -386,9 +378,9 @@ export default function App() {
   };
 
   const handleReorderPlaylistTrack = async (
-    playlistId: string,
-    fromIdx: number,
-    toIdx: number
+    playlistId,
+    fromIdx,
+    toIdx
   ) => {
     const updated = playlists.map((p) => {
       if (p.id === playlistId) {
@@ -404,49 +396,33 @@ export default function App() {
     setPlaylists(updated);
   };
 
-  const handlePlayPlaylist = (playlist: Playlist) => {
+  const handlePlayPlaylist = (playlist) => {
     const playlistTracks = playlist.trackIds
       .map((id) => tracks.find((t) => t.id === id))
-      .filter((t): t is AudioTrack => t !== undefined);
+      .filter((t) => t !== undefined);
 
     if (playlistTracks.length > 0) {
       handlePlayTrack(playlistTracks[0]);
     }
   };
 
-  // Local File Scanner & Importer for both Audio & Video
-  const handleImportFiles = async (fileList: FileList | File[]) => {
+  // Local File Scanner & Importer for Audio
+  const handleImportFiles = async (fileList) => {
     const filesArray = Array.from(fileList);
-    const mediaFiles = filesArray.filter((f) =>
-      /\.(mp3|flac|m4a|aac|wav|ogg|webm|mp4|mkv|mov|avi|3gp)$/i.test(f.name)
+    const audioFiles = filesArray.filter((f) =>
+      /\.(mp3|flac|m4a|aac|wav|ogg|webm)$/i.test(f.name)
     );
 
-    if (mediaFiles.length === 0) return;
+    if (audioFiles.length === 0) return;
 
     setIsScanning(true);
     setScannedCount(0);
-    const parsedTracks: AudioTrack[] = [];
-    const newVideoItems: any[] = [];
+    const parsedTracks = [];
 
-    for (let i = 0; i < mediaFiles.length; i++) {
-      const file = mediaFiles[i];
-      const isVideo = /\.(mp4|mkv|mov|avi|3gp|webm)$/i.test(file.name);
-
-      // Parse as audio track for music player
+    for (let i = 0; i < audioFiles.length; i++) {
+      const file = audioFiles[i];
       const parsed = await parseAudioFile(file);
       parsedTracks.push(parsed);
-
-      // If video format, also add to VideoView registry
-      if (isVideo) {
-        const videoUrl = URL.createObjectURL(file);
-        newVideoItems.push({
-          id: `custom_vid_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-          title: file.name.replace(/\.[^/.]+$/, ''),
-          description: `Vidéo scannée (${(file.size / (1024 * 1024)).toFixed(1)} Mo)`,
-          src: videoUrl,
-          isCustom: true,
-        });
-      }
 
       setScannedCount(i + 1);
       await saveTrack(parsed);
@@ -454,20 +430,6 @@ export default function App() {
 
     if (parsedTracks.length > 0) {
       setTracks((prev) => [...parsedTracks, ...prev]);
-    }
-
-    // Save custom videos to local storage registry for VideoView
-    if (newVideoItems.length > 0) {
-      try {
-        const savedStr = localStorage.getItem('audioflux_videos');
-        const existing = savedStr ? JSON.parse(savedStr) : [];
-        const merged = [...existing, ...newVideoItems];
-        localStorage.setItem('audioflux_videos', JSON.stringify(merged));
-        // dispatch custom event to notify VideoView
-        window.dispatchEvent(new Event('audioflux_videos_updated'));
-      } catch (e) {
-        console.warn('LocalStorage video save error:', e);
-      }
     }
 
     setIsScanning(false);
@@ -483,23 +445,23 @@ export default function App() {
   const handleDirectoryScan = async () => {
     if (!('showDirectoryPicker' in window)) {
       alert(
-        "L'API File System Directory n'est pas directement supportée par ce navigateur mobile/web. Veuillez utiliser le bouton 'Choisir Fichiers Audio & Vidéo' ci-dessous pour sélectionner vos médias."
+        "L'API File System Directory n'est pas directement supportée par ce navigateur mobile/web. Veuillez utiliser le bouton 'Choisir Fichiers Audio' ci-dessous pour sélectionner vos médias."
       );
       return;
     }
 
     try {
-      const dirHandle = await (window as any).showDirectoryPicker();
+      const dirHandle = await window.showDirectoryPicker();
       setIsScanning(true);
       setScannedCount(0);
 
-      const files: File[] = [];
+      const files = [];
 
-      async function scanDir(handle: any) {
+      async function scanDir(handle) {
         for await (const entry of handle.values()) {
           if (entry.kind === 'file') {
             const file = await entry.getFile();
-            if (/\.(mp3|flac|m4a|aac|wav|ogg|webm|mp4|mkv|mov|avi|3gp)$/i.test(file.name)) {
+            if (/\.(mp3|flac|m4a|aac|wav|ogg|webm)$/i.test(file.name)) {
               files.push(file);
             }
           } else if (entry.kind === 'directory') {
@@ -514,9 +476,9 @@ export default function App() {
         await handleImportFiles(files);
       } else {
         setIsScanning(false);
-        alert('Aucun fichier audio ou vidéo trouvé dans le dossier sélectionné.');
+        alert('Aucun fichier audio trouvé dans le dossier sélectionné.');
       }
-    } catch (err: any) {
+    } catch (err) {
       setIsScanning(false);
       console.warn('Directory scan canceled or denied:', err);
     }
@@ -551,8 +513,6 @@ export default function App() {
         className={`mx-auto transition-all duration-300 ${
           isMobileFrame
             ? 'max-w-md my-6 min-h-[820px] rounded-[40px] border-8 border-neutral-800 shadow-2xl overflow-hidden bg-[#171717] relative'
-            : activeTab === 'video'
-            ? 'w-full max-w-6xl'
             : 'w-full max-w-4xl'
         }`}
       >
@@ -598,17 +558,6 @@ export default function App() {
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
               onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
-            />
-          )}
-
-          {activeTab === 'video' && (
-            <VideoView
-              onVideoPlayStateChange={(isVideoPlaying) => {
-                if (isVideoPlaying && isPlaying) {
-                  audioEngineRef.current?.pause();
-                  setIsPlaying(false);
-                }
-              }}
             />
           )}
 

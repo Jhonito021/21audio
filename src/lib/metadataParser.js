@@ -1,13 +1,11 @@
-import { AudioTrack, AudioFormat } from '../types';
-
 /**
  * Parses ID3v2 tags (MP3/WAV/AAC) and FLAC Vorbis comments directly using DataView & ArrayBuffer.
  */
-export async function parseAudioFile(file: File): Promise<AudioTrack> {
+export async function parseAudioFile(file) {
   const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
   const ext = file.name.split('.').pop()?.toUpperCase() || '';
 
-  let format: AudioFormat = 'MP3';
+  let format = 'MP3';
   if (ext === 'FLAC') format = 'FLAC';
   else if (ext === 'WAV') format = 'WAV';
   else if (ext === 'OGG') format = 'OGG';
@@ -20,9 +18,9 @@ export async function parseAudioFile(file: File): Promise<AudioTrack> {
   let title = fileNameWithoutExt;
   let artist = 'Artiste inconnu';
   let album = 'Album inconnu';
-  let year: string | undefined;
-  let genre: string | undefined;
-  let coverUrl: string | undefined;
+  let year;
+  let genre;
+  let coverUrl;
 
   if (fileNameWithoutExt.includes(' - ')) {
     const parts = fileNameWithoutExt.split(' - ');
@@ -95,21 +93,19 @@ export async function parseAudioFile(file: File): Promise<AudioTrack> {
   };
 }
 
-function readFileSlice(file: File, start: number, end: number): Promise<ArrayBuffer> {
+function readFileSlice(file, start, end) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as ArrayBuffer);
+    reader.onload = () => resolve(reader.result);
     reader.onerror = reject;
     reader.readAsArrayBuffer(file.slice(start, end));
   });
 }
 
-function parseID3v2(view: DataView, buffer: ArrayBuffer) {
-  const result: any = {};
+function parseID3v2(view, buffer) {
+  const result = {};
   const tagSize = readSynchsafeInt(view, 6);
   let offset = 10; // Past 10-byte ID3 header
-
-  const decoder = new TextDecoder('utf-8');
 
   while (offset < tagSize + 10 && offset < view.byteLength - 10) {
     const frameId = String.fromCharCode(
@@ -135,7 +131,6 @@ function parseID3v2(view: DataView, buffer: ArrayBuffer) {
     } else if (frameId === 'TCON') {
       result.genre = decodeTextFrame(view, frameDataOffset, frameSize);
     } else if (frameId === 'APIC') {
-      // Attached Picture
       const picData = parseAPICFrame(view, frameDataOffset, frameSize);
       if (picData) result.coverUrl = picData;
     }
@@ -146,8 +141,8 @@ function parseID3v2(view: DataView, buffer: ArrayBuffer) {
   return result;
 }
 
-function parseFlacMetadata(view: DataView, buffer: ArrayBuffer) {
-  const result: any = {};
+function parseFlacMetadata(view, buffer) {
+  const result = {};
   let offset = 4; // Past "fLaC"
 
   while (offset < view.byteLength - 4) {
@@ -162,13 +157,11 @@ function parseFlacMetadata(view: DataView, buffer: ArrayBuffer) {
     offset += 4;
 
     if (blockType === 4) {
-      // Vorbis Comment Block
       const comments = parseVorbisComment(view, offset, length);
       if (comments.title) result.title = comments.title;
       if (comments.artist) result.artist = comments.artist;
       if (comments.album) result.album = comments.album;
     } else if (blockType === 6) {
-      // Picture Block
       const mimeLength = view.getUint32(offset + 4);
       const mime = new TextDecoder().decode(
         new Uint8Array(buffer, offset + 8, mimeLength)
@@ -194,8 +187,8 @@ function parseFlacMetadata(view: DataView, buffer: ArrayBuffer) {
   return result;
 }
 
-function parseVorbisComment(view: DataView, offset: number, length: number) {
-  const result: any = {};
+function parseVorbisComment(view, offset, length) {
+  const result = {};
   const decoder = new TextDecoder('utf-8');
 
   let cur = offset;
@@ -225,24 +218,21 @@ function parseVorbisComment(view: DataView, offset: number, length: number) {
   return result;
 }
 
-function decodeTextFrame(view: DataView, offset: number, length: number): string {
+function decodeTextFrame(view, offset, length) {
   if (length <= 1) return '';
   const encoding = view.getUint8(offset);
   const bytes = new Uint8Array(view.buffer, offset + 1, length - 1);
 
   if (encoding === 0 || encoding === 3) {
-    // UTF-8 or ISO-8859-1
     return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '').trim();
   } else if (encoding === 1 || encoding === 2) {
-    // UTF-16
     return new TextDecoder('utf-16').decode(bytes).replace(/\0/g, '').trim();
   }
   return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '').trim();
 }
 
-function parseAPICFrame(view: DataView, offset: number, length: number): string | null {
-  let cur = offset + 1; // skip encoding byte
-  // find MIME type
+function parseAPICFrame(view, offset, length) {
+  let cur = offset + 1;
   let mime = '';
   while (cur < offset + length) {
     const b = view.getUint8(cur++);
@@ -251,8 +241,7 @@ function parseAPICFrame(view: DataView, offset: number, length: number): string 
   }
   if (!mime) mime = 'image/jpeg';
 
-  cur++; // skip picture type byte
-  // find description null terminator
+  cur++;
   while (cur < offset + length) {
     if (view.getUint8(cur++) === 0) break;
   }
@@ -268,7 +257,7 @@ function parseAPICFrame(view: DataView, offset: number, length: number): string 
   return `data:${mime};base64,${btoa(binary)}`;
 }
 
-function readSynchsafeInt(view: DataView, offset: number): number {
+function readSynchsafeInt(view, offset) {
   const b1 = view.getUint8(offset);
   const b2 = view.getUint8(offset + 1);
   const b3 = view.getUint8(offset + 2);
@@ -276,7 +265,7 @@ function readSynchsafeInt(view: DataView, offset: number): number {
   return (b1 << 21) | (b2 << 14) | (b3 << 7) | b4;
 }
 
-function getAudioDuration(file: File): Promise<number> {
+function getAudioDuration(file) {
   return new Promise((resolve) => {
     const audio = new Audio();
     const url = URL.createObjectURL(file);

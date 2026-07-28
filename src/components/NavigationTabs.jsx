@@ -1,25 +1,17 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Music, ListMusic, Film, SlidersHorizontal, Settings } from 'lucide-react';
-import { TabType } from '../types';
+import { Music, ListMusic, SlidersHorizontal, Settings } from 'lucide-react';
 
-interface NavigationTabsProps {
-  activeTab: TabType;
-  onChangeTab: (tab: TabType) => void;
-  playlistsCount: number;
-}
-
-export const NavigationTabs: React.FC<NavigationTabsProps> = ({
+export const NavigationTabs = ({
   activeTab,
   onChangeTab,
   playlistsCount,
 }) => {
   const tabs = [
-    { id: 'library' as TabType, label: 'Musique', icon: Music },
-    { id: 'playlists' as TabType, label: 'Playlists', icon: ListMusic, badge: playlistsCount },
-    { id: 'video' as TabType, label: 'Vidéos', icon: Film },
-    { id: 'equalizer' as TabType, label: 'Égaliseur', icon: SlidersHorizontal },
-    { id: 'settings' as TabType, label: 'Réglages', icon: Settings },
+    { id: 'library', label: 'Musique', icon: Music },
+    { id: 'playlists', label: 'Playlists', icon: ListMusic, badge: playlistsCount },
+    { id: 'equalizer', label: 'Égaliseur', icon: SlidersHorizontal },
+    { id: 'settings', label: 'Réglages', icon: Settings },
   ];
 
   return (
@@ -87,4 +79,3 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
     </nav>
   );
 };
-
