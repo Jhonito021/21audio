@@ -16,7 +16,7 @@ export const NavigationTabs = ({
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-neutral-800 bg-[#171717]/95 backdrop-blur-xl px-2 py-2 shadow-2xl">
-      <div className="max-w-md mx-auto flex items-center justify-around">
+      <div className="max-w-md md:max-w-xl lg:max-w-3xl mx-auto flex items-center justify-around sm:justify-center sm:gap-12">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

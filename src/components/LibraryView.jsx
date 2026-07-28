@@ -399,7 +399,7 @@ export const LibraryView = ({
 
       {/* Tracks List */}
       {sortedTracks.length > 0 ? (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
           {sortedTracks.map((track) => (
             <TrackItem
               key={track.id}

@@ -40,7 +40,6 @@ export default function App() {
   
   const [activeTab, setActiveTab] = useState('library');
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isMobileFrame, setIsMobileFrame] = useState(false);
 
   // Player state
   const [currentTrack, setCurrentTrack] = useState(null);
@@ -508,21 +507,13 @@ export default function App() {
         isDarkMode ? 'bg-[#171717] text-white' : 'bg-neutral-100 text-neutral-900'
       }`}
     >
-      {/* Container with optional Mobile Device Frame Simulation */}
-      <div
-        className={`mx-auto transition-all duration-300 ${
-          isMobileFrame
-            ? 'max-w-md my-6 min-h-[820px] rounded-[40px] border-8 border-neutral-800 shadow-2xl overflow-hidden bg-[#171717] relative'
-            : 'w-full max-w-4xl'
-        }`}
-      >
+      {/* Automatically responsive container */}
+      <div className="w-full max-w-6xl mx-auto transition-all duration-300 min-h-screen flex flex-col">
         {/* App Header */}
         <Header
           isDarkMode={isDarkMode}
           onToggleTheme={() => setIsDarkMode(!isDarkMode)}
           onOpenScan={() => setIsScanModalOpen(true)}
-          isMobileFrame={isMobileFrame}
-          onToggleMobileFrame={() => setIsMobileFrame(!isMobileFrame)}
           totalTracksCount={tracks.length}
         />
 

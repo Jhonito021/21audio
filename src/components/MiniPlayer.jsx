@@ -24,7 +24,7 @@ export const MiniPlayer = ({
           transition={{ type: 'spring', stiffness: 350, damping: 28 }}
           className="fixed bottom-[60px] left-0 right-0 z-20 px-3 py-1"
         >
-          <div className="max-w-md mx-auto relative group">
+          <div className="max-w-md md:max-w-xl lg:max-w-3xl mx-auto relative group">
             {/* Progress bar line at top edge */}
             <div className="absolute top-0 left-2 right-2 h-1 bg-neutral-800 rounded-t-lg overflow-hidden z-10">
               <motion.div
