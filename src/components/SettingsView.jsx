@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   HardDrive,
   RefreshCw,
@@ -10,6 +10,9 @@ import {
   Radio,
   FileAudio,
   FolderSearch,
+  Download,
+  CheckCircle2,
+  Smartphone,
 } from 'lucide-react';
 
 export const SettingsView = ({
@@ -20,6 +23,37 @@ export const SettingsView = ({
   onReloadSamples,
   onClearLocalTracks,
 }) => {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    // Check if already in standalone PWA mode
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      setIsInstalled(true);
+    }
+
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+  }, []);
+
+  const handleInstallPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstalled(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      alert("Pour installer 21Audio sur votre appareil:\n• Sur Chrome/Android/Desktop: Cliquez sur 'Installer' dans la barre d'adresse.\n• Sur iOS (Safari): Appuyez sur le bouton Partager puis 'Sur l'écran d'accueil'.");
+    }
+  };
+
   const localTracks = tracks.filter((t) => t.source === 'local');
   const sampleTracks = tracks.filter((t) => t.source === 'sample');
 
@@ -36,8 +70,51 @@ export const SettingsView = ({
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
         <h2 className="text-base font-extrabold text-white">Paramètres & Stockage</h2>
         <p className="text-xs text-neutral-400">
-          Gérez vos données locales, votre bibliothèque et l'apparence de 21audio
+          Gérez vos données locales, votre bibliothèque et l'application PWA 21Audio
         </p>
+      </div>
+
+      {/* Progressive Web App (PWA) Install Card */}
+      <div className="bg-gradient-to-r from-neutral-900 via-[#171717] to-neutral-900 border border-[#c6ff34]/30 rounded-2xl p-5 shadow-xl space-y-3 relative overflow-hidden">
+        <div className="flex items-center gap-4">
+          <img
+            src="/app_icon.jpg"
+            alt="21Audio PWA Icon"
+            referrerPolicy="no-referrer"
+            className="w-16 h-16 rounded-2xl border-2 border-[#c6ff34] shadow-lg shadow-[#c6ff34]/20 object-cover shrink-0"
+          />
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-black text-white">21Audio PWA</h3>
+              <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase rounded bg-[#c6ff34] text-[#171717]">
+                Progressive Web App
+              </span>
+            </div>
+            <p className="text-xs text-neutral-300 mt-1">
+              Installez 21Audio directement sur votre écran d'accueil pour un accès instantané hors-ligne et en plein écran.
+            </p>
+          </div>
+        </div>
+
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-neutral-800/80">
+          <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
+            <Smartphone className="w-4 h-4 text-[#c6ff34]" />
+            <span>Support Offline, Notifications & Standalone</span>
+          </div>
+
+          {isInstalled ? (
+            <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-800 text-[#c6ff34] border border-[#c6ff34]/40 font-bold text-xs">
+              <CheckCircle2 className="w-4 h-4" /> Application Installée
+            </div>
+          ) : (
+            <button
+              onClick={handleInstallPWA}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#c6ff34] text-[#171717] font-extrabold text-xs hover:bg-[#b5f020] transition-transform active:scale-95 shadow-md shadow-[#c6ff34]/20 cursor-pointer"
+            >
+              <Download className="w-4 h-4" /> Installer 21Audio
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Storage & Data Section */}
@@ -131,12 +208,12 @@ export const SettingsView = ({
       <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 shadow-xl space-y-3">
         <div className="flex items-center gap-2 border-b border-neutral-800 pb-2 text-[#c6ff34]">
           <Disc3 className="w-5 h-5 animate-spin-slow" />
-          <h3 className="text-sm font-extrabold text-white">À propos de 21audio</h3>
+          <h3 className="text-sm font-extrabold text-white">À propos de 21Audio PWA</h3>
         </div>
 
         <div className="space-y-2 text-xs text-neutral-300 leading-relaxed">
           <p>
-            <strong className="text-white">21audio</strong> est un lecteur audio mobile & web de haute précision spécialement conçu pour la lecture fluide de fichiers audio locaux (<strong>MP3, FLAC 24-bit Lossless, AAC, WAV</strong>) et la diffusion de flux radio en ligne.
+            <strong className="text-white">21Audio</strong> est un lecteur audio mobile & web de haute précision spécialement conçu pour la lecture fluide de fichiers audio locaux (<strong>MP3, FLAC 24-bit Lossless, AAC, WAV</strong>) et la diffusion de flux radio en ligne.
           </p>
 
           <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
@@ -173,3 +250,4 @@ export const SettingsView = ({
     </div>
   );
 };
+

@@ -1,6 +1,6 @@
 {
-  "name": "21audio",
-  "description": "Application mobile haut de gamme pour la lecture audio & vidéo avec scan automatique des fichiers locaux, lecteur vidéo HD plein écran, égaliseur et playlists.",
+  "name": "21Audio",
+  "description": "Application PWA & mobile haut de gamme pour la lecture audio HD avec scan automatique des fichiers locaux, égaliseur et playlists.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
