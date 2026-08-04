@@ -32,25 +32,42 @@ export const SettingsView = ({
       setIsInstalled(true);
     }
 
+    if (window.deferredPWAInstallPrompt) {
+      setDeferredPrompt(window.deferredPWAInstallPrompt);
+    }
+
     const handleBeforeInstall = (e) => {
       e.preventDefault();
+      window.deferredPWAInstallPrompt = e;
       setDeferredPrompt(e);
     };
 
+    const handlePWAInstallable = () => {
+      if (window.deferredPWAInstallPrompt) {
+        setDeferredPrompt(window.deferredPWAInstallPrompt);
+      }
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('pwa-installable', handlePWAInstallable);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('pwa-installable', handlePWAInstallable);
+    };
   }, []);
 
   const handleInstallPWA = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+    const promptEvent = deferredPrompt || window.deferredPWAInstallPrompt;
+    if (promptEvent) {
+      promptEvent.prompt();
+      const { outcome } = await promptEvent.userChoice;
       if (outcome === 'accepted') {
         setIsInstalled(true);
       }
+      window.deferredPWAInstallPrompt = null;
       setDeferredPrompt(null);
     } else {
-      alert("Pour installer 21Audio sur votre appareil:\n• Sur Chrome/Android/Desktop: Cliquez sur 'Installer' dans la barre d'adresse.\n• Sur iOS (Safari): Appuyez sur le bouton Partager puis 'Sur l'écran d'accueil'.");
+      alert("Pour installer 21Audio PWA sur votre appareil :\n\n• Sur Android / Chrome (Desktop) : Cliquez sur l'icône d'installation dans la barre d'adresse de votre navigateur ou dans le menu ⋮ > 'Installer l'application'.\n• Sur iPhone / iPad (Safari) : Appuyez sur l'icône 'Partager' (carré avec flèche) puis choisissez 'Sur l'écran d'accueil'.");
     }
   };
 

@@ -2,25 +2,31 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>21Audio - Lecteur Audio HD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>21Audio - Lecteur Audio HD & PWA</title>
     
-    <!-- PWA Web App Manifest & Meta Tags -->
+    <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#171717" />
+    
+    <!-- Apple Mobile Web App -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="21Audio" />
-    <meta name="description" content="21Audio - Lecteur Audio Haute Définition & PWA Mobile" />
     
-    <!-- Favicon & App Icons -->
+    <!-- Android / Chrome Mobile Web App -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="21Audio" />
+    
+    <!-- SEO & App Meta -->
+    <meta name="description" content="21Audio - Lecteur Audio Haute Définition, Musique & Radio PWA" />
+    
+    <!-- Favicon & Touch Icons -->
     <link rel="icon" type="image/jpeg" href="/app_icon.jpg" />
     <link rel="apple-touch-icon" href="/app_icon.jpg" />
   </head>
-  <body>
+  <body class="bg-[#171717] text-white antialiased select-none">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
-
-
