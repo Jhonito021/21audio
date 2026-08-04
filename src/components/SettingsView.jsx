@@ -71,8 +71,7 @@ export const SettingsView = ({
     }
   };
 
-  const localTracks = tracks.filter((t) => t.source === 'local');
-  const sampleTracks = tracks.filter((t) => t.source === 'sample');
+  const localTracks = tracks;
 
   let totalSizeMB = 0;
   localTracks.forEach((t) => {
@@ -170,23 +169,13 @@ export const SettingsView = ({
           </button>
 
           <button
-            onClick={onReloadSamples}
-            className="w-full flex items-center justify-between p-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs font-bold text-white transition-colors cursor-pointer"
-          >
-            <span className="flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 text-[#c6ff34]" /> Recharger Pistes Démo HD
-            </span>
-            <span className="text-[11px] text-neutral-400">{sampleTracks.length} démos</span>
-          </button>
-
-          <button
             onClick={onClearLocalTracks}
             className="w-full flex items-center justify-between p-3 rounded-xl bg-red-950/40 hover:bg-red-950/70 border border-red-900/50 text-xs font-bold text-red-400 transition-colors cursor-pointer"
           >
             <span className="flex items-center gap-2">
-              <Trash2 className="w-4 h-4" /> Vider la Musique Scannée Locale
+              <Trash2 className="w-4 h-4" /> Vider la Bibliothèque Musicale
             </span>
-            <span className="text-[11px] text-red-500 font-mono">Effacer</span>
+            <span className="text-[11px] text-red-500 font-mono">Effacer Tout</span>
           </button>
         </div>
       </div>

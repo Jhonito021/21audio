@@ -79,8 +79,7 @@ export const LibraryView = ({
     if (activeFilter === 'favorites') return t.isFavorite;
     if (activeFilter === 'flac') return t.format === 'FLAC';
     if (activeFilter === 'mp3') return t.format === 'MP3';
-    if (activeFilter === 'local') return t.source === 'local';
-    if (activeFilter === 'sample') return t.source === 'sample';
+    if (activeFilter === 'local') return true;
 
     return true;
   });

@@ -116,9 +116,18 @@ export default function App() {
         const savedTracks = await getAllTracksFromDB();
         const savedPlaylists = await getAllPlaylistsDB();
 
-        if (savedTracks.length > 0) {
+        // Remove legacy sample tracks from IndexedDB if present
+        for (const t of savedTracks) {
+          if (t.source === 'sample') {
+            await deleteTrackFromDB(t.id);
+          }
+        }
+
+        const validLocalTracks = savedTracks.filter((t) => t.source !== 'sample');
+
+        if (validLocalTracks.length > 0) {
           // Re-create object URLs for local blob tracks if stored
-          const restoredTracks = savedTracks.map((t) => {
+          const restoredTracks = validLocalTracks.map((t) => {
             if (t.blob && t.source === 'local') {
               return { ...t, src: URL.createObjectURL(t.blob) };
             }
@@ -126,20 +135,23 @@ export default function App() {
           });
           setTracks(restoredTracks);
         } else {
-          // First launch: load sample tracks and store them
-          setTracks(SAMPLE_TRACKS);
-          await saveTracksBatch(SAMPLE_TRACKS);
+          setTracks([]);
         }
 
         if (savedPlaylists.length > 0) {
-          setPlaylists(savedPlaylists);
+          // Clean trackIds referencing sample tracks
+          const cleanedPlaylists = savedPlaylists.map((p) => ({
+            ...p,
+            trackIds: p.trackIds ? p.trackIds.filter((id) => !String(id).startsWith('sample-')) : []
+          }));
+          setPlaylists(cleanedPlaylists);
         } else {
           // Default initial playlist
           const defaultPlaylist = {
             id: 'playlist-default-1',
             name: 'Ma Sélection 21',
-            description: 'Vos morceaux préférés rassemblés dans 21audio',
-            trackIds: ['sample-1', 'sample-3'],
+            description: 'Vos morceaux préférés rassemblés dans 21Audio',
+            trackIds: [],
             createdAt: Date.now(),
             updatedAt: Date.now(),
           };
@@ -148,7 +160,7 @@ export default function App() {
         }
       } catch (err) {
         console.warn('IndexedDB initial load issue:', err);
-        setTracks(SAMPLE_TRACKS);
+        setTracks([]);
       }
     }
 
@@ -484,19 +496,18 @@ export default function App() {
   };
 
   const handleReloadSamples = async () => {
-    setTracks((prev) => [...SAMPLE_TRACKS, ...prev]);
-    await saveTracksBatch(SAMPLE_TRACKS);
+    // No demo tracks
+    setTracks([]);
   };
 
   const handleClearLocalTracks = async () => {
     if (window.confirm('Voulez-vous supprimer toutes les pistes scannées locales ?')) {
-      const sampleOnly = tracks.filter((t) => t.source === 'sample');
-      setTracks(sampleOnly);
+      setTracks([]);
+      setCurrentTrack(null);
+      setIsPlaying(false);
       const allDB = await getAllTracksFromDB();
       for (const t of allDB) {
-        if (t.source === 'local') {
-          await deleteTrackFromDB(t.id);
-        }
+        await deleteTrackFromDB(t.id);
       }
     }
   };
