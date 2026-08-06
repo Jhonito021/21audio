@@ -100,6 +100,11 @@ export const TrackItem = ({
                 HD
               </span>
             )}
+            {track.source === 'youtube' && (
+              <span className="px-1 py-0.2 text-[8px] font-extrabold rounded bg-red-600/20 text-red-400 border border-red-500/30">
+                YouTube Stream
+              </span>
+            )}
           </div>
 
           <p className="text-xs text-neutral-400 truncate mt-0.5">

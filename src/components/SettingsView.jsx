@@ -20,7 +20,6 @@ export const SettingsView = ({
   isDarkMode,
   onToggleTheme,
   onScanFolder,
-  onReloadSamples,
   onClearLocalTracks,
 }) => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);

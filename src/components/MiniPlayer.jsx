@@ -60,8 +60,12 @@ export const MiniPlayer = ({
                   )}
 
                   {/* Format indicator overlay */}
-                  <div className="absolute bottom-0.5 right-0.5 px-1 py-0.2 text-[8px] font-black uppercase rounded bg-[#171717]/90 text-[#c6ff34]">
-                    {currentTrack.format}
+                  <div className={`absolute bottom-0.5 right-0.5 px-1 py-0.2 text-[8px] font-black uppercase rounded ${
+                    currentTrack.source === 'youtube'
+                      ? 'bg-red-600 text-white'
+                      : 'bg-[#171717]/90 text-[#c6ff34]'
+                  }`}>
+                    {currentTrack.source === 'youtube' ? 'YT' : currentTrack.format}
                   </div>
                 </div>
 

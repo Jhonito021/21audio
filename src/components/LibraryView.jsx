@@ -11,6 +11,7 @@ import {
   Play,
   Trash2,
   Music2,
+  Youtube,
 } from 'lucide-react';
 import { TrackItem } from './TrackItem';
 
@@ -77,6 +78,7 @@ export const LibraryView = ({
       return recentlyPlayed.some((rp) => rp.id === t.id);
     }
     if (activeFilter === 'favorites') return t.isFavorite;
+    if (activeFilter === 'youtube') return t.source === 'youtube';
     if (activeFilter === 'flac') return t.format === 'FLAC';
     if (activeFilter === 'mp3') return t.format === 'MP3';
     if (activeFilter === 'local') return true;
@@ -354,6 +356,17 @@ export const LibraryView = ({
           }`}
         >
           <Heart className="w-3.5 h-3.5 fill-current text-red-400" /> Favoris ({favoritesCount})
+        </button>
+
+        <button
+          onClick={() => setActiveFilter('youtube')}
+          className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap flex items-center gap-1 transition-colors cursor-pointer ${
+            activeFilter === 'youtube'
+              ? 'bg-red-600 text-white'
+              : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
+          }`}
+        >
+          <Youtube className="w-3.5 h-3.5 fill-red-500 text-red-500" /> YouTube Stream ({tracks.filter((t) => t.source === 'youtube').length})
         </button>
 
         <button

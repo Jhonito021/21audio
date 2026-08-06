@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Music, ListMusic, SlidersHorizontal, Settings } from 'lucide-react';
+import { Music, Youtube, ListMusic, SlidersHorizontal, Settings } from 'lucide-react';
 
 export const NavigationTabs = ({
   activeTab,
@@ -9,6 +9,7 @@ export const NavigationTabs = ({
 }) => {
   const tabs = [
     { id: 'library', label: 'Musique', icon: Music },
+    { id: 'youtube', label: 'YouTube', icon: Youtube, isHighlight: true },
     { id: 'playlists', label: 'Playlists', icon: ListMusic, badge: playlistsCount },
     { id: 'equalizer', label: 'Égaliseur', icon: SlidersHorizontal },
     { id: 'settings', label: 'Réglages', icon: Settings },

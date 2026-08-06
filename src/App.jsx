@@ -22,6 +22,8 @@ import { PlaylistsView } from './components/PlaylistsView';
 import { EqualizerView } from './components/EqualizerView';
 import { SettingsView } from './components/SettingsView';
 import { ScanModal } from './components/ScanModal';
+import { YouTubeView } from './components/YouTubeView';
+import { YouTubePlayer } from './components/YouTubePlayer';
 
 import { Plus, ListPlus, X, Check } from 'lucide-react';
 
@@ -52,6 +54,10 @@ export default function App() {
   const [isShuffle, setIsShuffle] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   
+  // YouTube player states
+  const [ytSeekTime, setYtSeekTime] = useState(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
   // Equalizer state
   const [equalizerGains, setEqualizerGains] = useState([0, 0, 0, 0, 0]);
   const [activePresetName, setActivePresetName] = useState('Plat / Neutre');
@@ -180,8 +186,27 @@ export default function App() {
     }
   }, [tracks]);
 
+  // Save track to library DB
+  const handleSaveTrackToLibrary = async (track) => {
+    const exists = tracks.some((t) => t.id === track.id);
+    if (!exists) {
+      const updated = [track, ...tracks];
+      setTracks(updated);
+      try {
+        await saveTrack(track);
+      } catch (err) {
+        console.warn('Failed to save YouTube track to DB:', err);
+      }
+    }
+  };
+
   // Handle Play/Pause
   const handleTogglePlay = () => {
+    if (currentTrack?.source === 'youtube') {
+      setIsPlaying(!isPlaying);
+      return;
+    }
+
     if (!audioEngineRef.current) return;
 
     if (isPlaying) {
@@ -203,6 +228,7 @@ export default function App() {
 
   const handlePlayTrack = (track) => {
     setCurrentTrack(track);
+    setIsPlaying(true);
 
     // Track recently played (last 5)
     setRecentlyPlayed((prev) => {
@@ -217,8 +243,15 @@ export default function App() {
       return updated;
     });
 
-    if (audioEngineRef.current) {
-      audioEngineRef.current.loadAndPlay(track);
+    if (track.source === 'youtube') {
+      // Pause native HTML audio engine if it was active
+      if (audioEngineRef.current) {
+        audioEngineRef.current.pause();
+      }
+    } else {
+      if (audioEngineRef.current) {
+        audioEngineRef.current.loadAndPlay(track);
+      }
     }
   };
 
@@ -230,15 +263,17 @@ export default function App() {
   };
 
   const handleSeek = (secs) => {
-    if (audioEngineRef.current) {
+    setCurrentTime(secs);
+    if (currentTrack?.source === 'youtube') {
+      setYtSeekTime(secs);
+    } else if (audioEngineRef.current) {
       audioEngineRef.current.seek(secs);
     }
   };
 
   const handleSeekBy = (deltaSecs) => {
-    if (audioEngineRef.current) {
-      audioEngineRef.current.seekBy(deltaSecs);
-    }
+    const newTime = Math.max(0, currentTime + deltaSecs);
+    handleSeek(newTime);
   };
 
   const handleChangeVolume = (vol) => {
@@ -495,11 +530,6 @@ export default function App() {
     }
   };
 
-  const handleReloadSamples = async () => {
-    // No demo tracks
-    setTracks([]);
-  };
-
   const handleClearLocalTracks = async () => {
     if (window.confirm('Voulez-vous supprimer toutes les pistes scannées locales ?')) {
       setTracks([]);
@@ -546,6 +576,18 @@ export default function App() {
             />
           )}
 
+          {activeTab === 'youtube' && (
+            <YouTubeView
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              onPlayTrack={handlePlayTrack}
+              onTogglePlay={handleTogglePlay}
+              onSaveTrackToLibrary={handleSaveTrackToLibrary}
+              onAddToPlaylist={(t) => setTrackToAddToPlaylist(t)}
+              savedTracks={tracks}
+            />
+          )}
+
           {activeTab === 'playlists' && (
             <PlaylistsView
               playlists={playlists}
@@ -581,7 +623,6 @@ export default function App() {
               isDarkMode={isDarkMode}
               onToggleTheme={() => setIsDarkMode(!isDarkMode)}
               onScanFolder={() => setIsScanModalOpen(true)}
-              onReloadSamples={handleReloadSamples}
               onClearLocalTracks={handleClearLocalTracks}
             />
           )}
@@ -639,7 +680,29 @@ export default function App() {
           equalizerPresets={EQUALIZER_PRESETS}
           activePresetName={activePresetName}
           onSelectPreset={handleSelectEQPreset}
+          showVideo={showVideoModal}
+          onToggleVideo={() => setShowVideoModal(!showVideoModal)}
         />
+
+        {/* Global YouTube Player Engine */}
+        {currentTrack?.source === 'youtube' && (
+          <YouTubePlayer
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            volume={volume}
+            seekTime={ytSeekTime}
+            onTimeUpdate={(cur, dur) => {
+              setCurrentTime(cur);
+              if (dur > 0) setDuration(dur);
+            }}
+            onEnded={handleNext}
+            onStateChange={(playing, loading) => {
+              setIsPlaying(playing);
+              setIsLoading(loading);
+            }}
+            showVideo={showVideoModal}
+          />
+        )}
 
         {/* Auto Scan Modal */}
         <ScanModal

@@ -52,6 +52,8 @@ export const FullPlayerModal = ({
   equalizerPresets,
   activePresetName,
   onSelectPreset,
+  showVideo,
+  onToggleVideo,
 }) => {
   const [showLyrics, setShowLyrics] = useState(false);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
@@ -106,8 +108,12 @@ export const FullPlayerModal = ({
               </motion.button>
 
               <div className="text-center">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#c6ff34] bg-[#c6ff34]/10 px-2.5 py-0.5 rounded-full border border-[#c6ff34]/20 shadow-sm">
-                  En cours de lecture
+                <span className={`text-[10px] uppercase font-extrabold tracking-widest px-2.5 py-0.5 rounded-full border shadow-sm ${
+                  currentTrack?.source === 'youtube'
+                    ? 'bg-red-600/20 text-red-400 border-red-500/40'
+                    : 'bg-[#c6ff34]/10 text-[#c6ff34] border-[#c6ff34]/20'
+                }`}>
+                  {currentTrack?.source === 'youtube' ? 'YouTube Stream HD' : 'En cours de lecture'}
                 </span>
               </div>
 
